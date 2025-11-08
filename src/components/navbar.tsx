@@ -4,17 +4,35 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "./ui/button";
 import { cn } from "@/lib/util";
+import { stackClientApp } from "@/stack/client";
+import { useState, useEffect } from "react";
+import type { CurrentUser } from "@stackframe/stack";
 export const NavBar = () => {
+  const [user, setUser] = useState<CurrentUser | undefined>(undefined);
+  useEffect(() => {
+    stackClientApp.getUser().then((user: CurrentUser | null) => {
+      setUser(user as CurrentUser);
+    });
+  }, []);
   const pathname = usePathname();
+
+  const isLoggedIn = user !== null;
 
   const links = [
     {
+      show: true,
       href: "/",
       label: "Home",
     },
     {
+      show: !isLoggedIn,
       href: "/handler/sign-up",
       label: "Sign Up",
+    },
+    {
+      show: isLoggedIn,
+      href: "/handler/sign-out",
+      label: "Sign Out",
     },
   ];
   return (
@@ -24,19 +42,24 @@ export const NavBar = () => {
         <span className="text-2xl text-foreground/50">City of Calgary</span>
       </h1>
       <div className="flex flex-row items-center justify-center gap-4 pr-4">
-        {links.map((link) => (
-          <Button variant="ghost" size="lg" asChild key={link.href}>
-            <Link
-              href={link.href}
-              className={cn(
-                pathname === link.href ? "text-primary" : "text-foreground/50",
-                "hover:text-primary"
-              )}
-            >
-              {link.label}
-            </Link>
-          </Button>
-        ))}
+        {links.map(
+          (link) =>
+            link.show && (
+              <Button variant="ghost" size="lg" asChild key={link.href}>
+                <Link
+                  href={link.href}
+                  className={cn(
+                    pathname === link.href
+                      ? "text-primary"
+                      : "text-foreground/50",
+                    "hover:text-primary"
+                  )}
+                >
+                  {link.label}
+                </Link>
+              </Button>
+            )
+        )}
       </div>
     </nav>
   );
