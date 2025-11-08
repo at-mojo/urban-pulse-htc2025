@@ -3,17 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "./ui/button";
-import { cn } from "@/lib/util";
-import { stackClientApp } from "@/stack/client";
-import { useState, useEffect } from "react";
-import { UserAvatar, type CurrentUser } from "@stackframe/stack";
+import { cn } from "@/lib/utils";
+import { UserAvatar, useUser } from "@stackframe/stack";
 export const NavBar = () => {
-  const [user, setUser] = useState<CurrentUser | undefined>(undefined);
-  useEffect(() => {
-    stackClientApp.getUser().then((user: CurrentUser | null) => {
-      setUser(user as CurrentUser);
-    });
-  }, []);
+  const user = useUser();
   const pathname = usePathname();
 
   const isLoggedIn = user !== null;
@@ -22,12 +15,17 @@ export const NavBar = () => {
     {
       show: !isLoggedIn,
       href: "/handler/sign-up",
-      label: <UserAvatar user={user as CurrentUser} />,
+      label: <UserAvatar user={user} />,
     },
     {
       show: isLoggedIn,
       href: "/handler/sign-out",
-      label: <UserAvatar user={user as CurrentUser} />,
+      label: <UserAvatar user={user} />,
+    },
+    {
+      show: isLoggedIn,
+      href: "/dashboard",
+      label: "Dashboard",
     },
   ];
   return (

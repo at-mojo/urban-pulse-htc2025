@@ -5,6 +5,8 @@ import { Bytesized } from "next/font/google";
 import "./globals.css";
 import { NavBar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
+import { Suspense } from "react";
+import { FullPageSpinner } from "@/components/full-page-spinner";
 
 const bytesized = Bytesized({
   weight: "400",
@@ -12,7 +14,8 @@ const bytesized = Bytesized({
 
 export const metadata: Metadata = {
   title: "Urban Pulse",
-  description: "Urban Pulse is a platform for reporting urban issues in the City of Calgary.",
+  description:
+    "Urban Pulse is a platform for reporting urban issues in the City of Calgary.",
 };
 
 export default function RootLayout({
@@ -22,9 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`antialiased flex min-h-screen flex-col dark`}
-      >
+      <body className={`antialiased flex min-h-screen flex-col dark`}>
         <style global>{`
           :root {
             --font-bytesized: ${bytesized.style.fontFamily};
@@ -32,7 +33,9 @@ export default function RootLayout({
         `}</style>
         <StackProvider app={stackClientApp}>
           <StackTheme>
-            <NavBar />
+            <Suspense fallback={<FullPageSpinner />}>
+              <NavBar />
+            </Suspense>
             {children}
             <Footer />
           </StackTheme>
