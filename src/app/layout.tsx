@@ -28,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`antialiased flex min-h-screen flex-col dark`}>
-        <style global>{`
+        <style>{`
           :root {
             --font-departure-mono: ${departureMono.style.fontFamily};
           }

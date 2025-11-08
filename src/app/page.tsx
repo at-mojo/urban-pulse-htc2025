@@ -1,12 +1,16 @@
 "use client";
 
-import GlMap from 'react-map-gl/mapbox';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import Image from "next/image";
 
 export default function Home() {
   return (
     <main className="flex flex-1 flex-col items-center justify-center relative">
-      some promotional text here
+      <Image
+        src="https://images.unsplash.com/photo-1727239122674-879c3157d491"
+        alt="Urban Pulse"
+        width={1000}
+        height={1000}
+      />
     </main>
   );
 }
