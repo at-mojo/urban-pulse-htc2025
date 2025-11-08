@@ -4,6 +4,7 @@ import { useState } from "react";
 import { TabButton, TabView } from "@/components/ui/tab-view";
 import "mapbox-gl/dist/mapbox-gl.css";
 import GlMap from "react-map-gl/mapbox";
+import { ReporterUI } from "@/components/reporter-ui";
 
 export default function Dashboard() {
   const [value, setValue] = useState("map");
@@ -51,6 +52,7 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+      <ReporterUI />
     </main>
   );
 }
