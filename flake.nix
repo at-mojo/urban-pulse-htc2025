@@ -17,15 +17,26 @@
           echo "  dev    - Start development server"
           echo "  build  - Build the application"
           echo "  start  - Start production server"
+          echo "  install - Install dependencies"
         '';
 
         packages.dev = pkgs.writeShellScriptBin "dev" ''
-          export PATH=${pkgs.nodejs_20}/bin:$PATH
-          if [ ! -d "node_modules" ]; then
-            echo "Installing dependencies..."
-            ${pkgs.nodejs_20}/bin/npm install
-          fi
-          ${pkgs.nodejs_20}/bin/npm run dev
+          nix run .#install
+          ${pkgs.bun}/bin/bun run dev
+        '';
+
+        packages.build = pkgs.writeShellScriptBin "build" ''
+          nix run .#install
+          ${pkgs.bun}/bin/bun run build
+        '';
+
+        packages.start = pkgs.writeShellScriptBin "start" ''
+          nix run .#install
+          ${pkgs.bun}/bin/bun run start
+        '';
+
+        packages.install = pkgs.writeShellScriptBin "install" ''
+          ${pkgs.bun}/bin/bun install
         '';
 
         devShells.default = pkgs.mkShell {
@@ -42,6 +53,9 @@
             export PRISMA_QUERY_ENGINE_BINARY="${pkgs.prisma-engines}/bin/query-engine"
             export PRISMA_QUERY_ENGINE_LIBRARY="${pkgs.prisma-engines}/lib/libquery_engine.node"
             export PRISMA_FMT_BINARY="${pkgs.prisma-engines}/bin/prisma-fmt"
+            export PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
+
+            nix run .#install
           '';
         };
       }
