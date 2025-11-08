@@ -14,7 +14,7 @@ export default function Home() {
         zoom: 14
       }}
       style={{width: "100%", height: "100%", position: "absolute", top: 0, left: 0, zIndex: 0}}
-      mapStyle="mapbox://styles/mapbox/streets-v9"
+      mapStyle="mapbox://styles/mapbox/dark-v11"
     />
     </main>
   );
