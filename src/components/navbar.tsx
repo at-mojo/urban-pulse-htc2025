@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "./ui/button";
-import { cn } from "@/lib/util";
+import { cn } from "@/lib/utils";
 import { UserAvatar, useUser } from "@stackframe/stack";
 export const NavBar = () => {
   const user = useUser();
@@ -21,6 +21,11 @@ export const NavBar = () => {
       show: isLoggedIn,
       href: "/handler/sign-out",
       label: <UserAvatar user={user} />,
+    },
+    {
+      show: isLoggedIn,
+      href: "/dashboard",
+      label: "Dashboard",
     },
   ];
   return (
