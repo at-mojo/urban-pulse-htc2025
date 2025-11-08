@@ -39,7 +39,7 @@ export const NewReportModal = ({
       </Button>
       <div className="w-full h-full flex flex-col items-center justify-center">
         <div className="bg-background rounded-md p-4">
-          <h1 className="text-2xl font-bold font-bytesized ">New Report</h1>
+          <h1 className="text-2xl font-bold font-departure-mono ">New Report</h1>
         </div>
       </div>
     </div>,

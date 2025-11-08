@@ -31,7 +31,7 @@ export const NavBar = () => {
   return (
     <nav className="fixed top-0 left-0 w-full bg-background/50 backdrop-blur-lg z-50 flex flex-row items-center justify-between">
       <Link href="/">
-        <h1 className="text-4xl font-bytesized text-foreground p-4">
+        <h1 className="text-4xl font-departure-mono text-foreground p-4">
           Urban Pulse |{" "}
           <span className="text-2xl text-foreground/50">City of Calgary</span>
         </h1>

@@ -1,22 +1,24 @@
 import type { Metadata } from "next";
 import { StackProvider, StackTheme } from "@stackframe/stack";
 import { stackClientApp } from "../stack/client";
-import { Bytesized } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { NavBar } from "@/components/navbar";
 import { Footer } from "@/components/footer";
 import { Suspense } from "react";
 import { FullPageSpinner } from "@/components/full-page-spinner";
 
-const bytesized = Bytesized({
-  weight: "400",
-});
-
 export const metadata: Metadata = {
   title: "Urban Pulse",
   description:
     "Urban Pulse is a platform for reporting urban issues in the City of Calgary.",
 };
+
+const departureMono = localFont({
+  src: "../fonts/departure-mono.woff2",
+  display: "swap",
+  variable: "--font-departure-mono",
+});
 
 export default function RootLayout({
   children,
@@ -28,7 +30,7 @@ export default function RootLayout({
       <body className={`antialiased flex min-h-screen flex-col dark`}>
         <style global>{`
           :root {
-            --font-bytesized: ${bytesized.style.fontFamily};
+            --font-departure-mono: ${departureMono.style.fontFamily};
           }
         `}</style>
         <StackProvider app={stackClientApp}>
