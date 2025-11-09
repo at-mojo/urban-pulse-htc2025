@@ -152,6 +152,10 @@ export async function getUserReports(data: { userId: string }) {
   }
 }
 
+async function userVoteExists(reportId: string, userId: string): Promise<boolean> {
+  const vote = await prisma.vote.findFirst({
+    where: {
+
 export async function upvoteReport(data: { id: string }) {
   if (!isLoggedIn()) {
     return new Response("Unauthorized", { status: 401 });

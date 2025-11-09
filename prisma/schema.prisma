@@ -24,17 +24,17 @@ model Report {
   path      String?  @db.VarChar(256)
   urgency   Urgency
   rating    Int      @default(0)
-  votes     Votes[]
+  votes     Vote[]
 }
 
-enum Vote {
+enum VoteValue {
   upvote
   downvote
 }
-model Votes {
+model Vote {
   report    Report   @relation(fields: [reportId], references: [id])
   userId    String   @db.Uuid()
   reportId  String   
-  vote      Vote     
+  voteValue      VoteValue
   @@id([userId, reportId])
 }
