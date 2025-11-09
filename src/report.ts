@@ -3,7 +3,7 @@
 import prisma from "./prisma";
 import { createId } from "@paralleldrive/cuid2";
 import { stackServerApp } from "@/stack/server";
-import type { Report } from "@prisma/client";
+import type { Report, Urgency } from "@prisma/client";
 
 function isLoggedIn(): boolean {
   return !!stackServerApp.getUser;
@@ -155,6 +155,52 @@ export async function getReport(data: {
     throw new Error("Internal Server Error");
   }
 }
+
+export async function updateReport(data: {
+  reportId: string,
+  title: string,
+  desc: string,
+  lat: number,
+  lon: number,
+  path: string,
+  urgency: Urgency
+}): Promise<{ content: Report }> {
+  if (!data.reportId || !data.title || !data.desc || !data.lat || !data.lon || !data.urgency) {
+    throw new Error("Missing fields");
+  }
+
+  try {
+    // make sure user owns the report
+    const user = await stackServerApp.getUser()
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
+
+    const report = await prisma.report.update({
+      where: {
+        id: data.reportId,
+        userId: user.id,
+      },
+      data: {
+        title: data.title,
+        desc: data.desc,
+        lat: data.lat,
+        lon: data.lon,
+        path: data.path,
+        urgency: data.urgency,
+      },
+    })
+
+    if(!report) {
+      throw new Error("Report not found or you do not have permission to update it");
+    }
+
+    return { content: report };
+  } catch (error) {    
+    console.error("Error updating report:", error);
+    throw new Error("Internal Server Error");
+  }
+};
 
 // Be able to delete own report
 export async function deleteReport(data: {
