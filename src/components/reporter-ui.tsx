@@ -7,7 +7,7 @@ import { Textarea } from "./ui/textarea";
 import { RadioGroup } from "./ui/radio-group";
 import { cn } from "@/lib/utils";
 import { GlMap } from "./gl-map";
-import { createReport } from "@/report";
+import Uploader from "./uploader";
 
 export const ReporterUI = () => {
   const [isNewReportModalOpen, setIsNewReportModalOpen] = useState(false);
@@ -107,6 +107,12 @@ export const NewReportModal = ({
               `}
             </style>
           </div>
+          <div className="w-full">
+            <label htmlFor="image" className="text-sm text-foreground/50">
+              Image
+            </label>
+          </div>
+          <Uploader />
           <label htmlFor="urgency" className="text-sm text-foreground/50">
             Urgency
           </label>
@@ -155,17 +161,15 @@ export const NewReportModal = ({
               disabled={!submittableLocation || !title}
               onClick={async () => {
                 if (submittableLocation) {
-                  const response = await createReport({
-                    title,
-                    desc: description,
-                    lat: submittableLocation.lat.toString(),
-                    lon: submittableLocation.lon.toString(),
-                    path: "https://placehold.co/600x400",
-                    urgency: urgency,
-                  });
-                  if (response.ok) {
-                    setIsNewReportModalOpen(false);
-                  }
+                  // TODO: Fix hehehhehe
+                  // const response = await createReport({
+                  //   title,
+                  //   desc: description,
+                  //   lat: submittableLocation.lat.toString(),
+                  //   lon: submittableLocation.lon.toString(),
+                  //   path: "https://placehold.co/600x400",
+                  //   urgency: urgency,
+                  // });
                 }
               }}
             >
