@@ -37,8 +37,8 @@ export const GlMap = <T extends object>({
       : null
   );
 
-  // State for current zoom
-  const [currentZoom, setCurrentZoom] = useState<number>(zoom || 11);
+  // State for current zoom (needed entirely so our map doesn't re-render 32179371298892371 times per second :D)
+  const [_, setCurrentZoom] = useState<number>(zoom || 11);
 
   // Ref for the map to read zoom
   const mapRef = useRef<typeof MapBoxMap | null>(null);
@@ -74,7 +74,7 @@ export const GlMap = <T extends object>({
     id: "pins-heatmap",
     type: "heatmap",
     source: "pins-heatmap-source",
-    maxzoom: 15,
+    maxzoom: 23,
     paint: {
       // Increase the heatmap weight based on frequency and property magnitude
       "heatmap-weight": ["interpolate", ["linear"], ["zoom"], 7, 1, 15, 3],
