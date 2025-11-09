@@ -60,17 +60,17 @@ export default function Dashboard() {
             <h1 className="text-3xl font-bold font-departure-mono">Overview</h1>
             <div className="w-full h-full flex flex-row gap-4 bg-background rounded-xl p-4 border-2 border-border mt-4">
               <div className="flex-2 h-full">
-                <EventsTable />
+                <EventsTable reports={reports} />
               </div>
               <div className="flex flex-col gap-4 flex-1 h-full">
                 <div className="w-full bg-background rounded-xl p-4 border-2 border-border flex flex-row items-center gap-4">
-                  <ChevronsUpIcon className="w-32 h-32" color="#e44d4d" /> <span className="text-2xl font-bold font-departure-mono">7 High Priority Reports</span>
+                  <ChevronsUpIcon className="w-32 h-32" color="#e44d4d" /> <span className="text-2xl font-bold font-departure-mono">{reports.filter((report) => report.urgency === "HIGH").length} High Priority Reports</span>
                 </div>
                 <div className="w-full bg-background rounded-xl p-4 border-2 border-border flex flex-row items-center gap-4">
-                  <ChevronUpIcon className="w-32 h-32" color="#f18227" /> <span className="text-2xl font-bold font-departure-mono">10 Medium Priority Reports</span>
+                  <ChevronUpIcon className="w-32 h-32" color="#f18227" /> <span className="text-2xl font-bold font-departure-mono">{reports.filter((report) => report.urgency === "MEDIUM").length} Medium Priority Reports</span>
                 </div>
                 <div className="w-full bg-background rounded-xl p-4 border-2 border-border flex flex-row items-center gap-4">
-                  <MinusIcon className="w-32 h-32" color="#0ea55f" /> <span className="text-2xl font-bold font-departure-mono">10 Low Priority Reports</span>
+                  <MinusIcon className="w-32 h-32" color="#0ea55f" /> <span className="text-2xl font-bold font-departure-mono">{reports.filter((report) => report.urgency === "LOW").length} Low Priority Reports</span>
                 </div>
               </div>
             </div>

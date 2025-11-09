@@ -68,7 +68,7 @@ const columns: ColumnDef<Report>[] = [
   },
 ];
 
-export default function EventsTable() {
+export default function EventsTable({ reports }: { reports: Report[] }) {
   const pageSize = 10;
 
   const [pagination, setPagination] = useState<PaginationState>({
@@ -83,17 +83,8 @@ export default function EventsTable() {
     },
   ]);
 
-  const [data, setData] = useState<Report[]>([]);
-  useEffect(() => {
-    const fetchReports = async () => {
-      const reports = await getAllReports();
-      setData(reports as unknown as Report[]);
-    };
-    fetchReports();
-  }, []);
-
   const table = useReactTable({
-    data,
+    data: reports,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
