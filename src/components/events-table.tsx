@@ -18,6 +18,7 @@ import {
   ChevronUpIcon,
   ImageIcon,
   PencilIcon,
+  StarIcon,
   TrashIcon,
 } from "lucide-react";
 
@@ -78,10 +79,18 @@ const columns: ColumnDef<Report>[] = [
   {
     header: "Rating",
     accessorKey: "rating",
-  },
-  {
-    header: "Votes",
-    accessorKey: "votes",
+    cell: ({ row }) => {
+      return (
+        <div className="flex flex-row items-center gap-2">
+          {Array.from({ length: row.original.rating }).map((_, index) => (
+            <StarIcon key={`star-${row.original.id}-${index}`} size={16} />
+          ))}
+          {Array.from({ length: 5 - row.original.rating }).map((_, index) => (
+            <StarIcon key={`star-${row.original.id}-${index}`} size={16} className="text-gray-700" />
+          ))}
+        </div>
+      );
+    },
   },
   {
     header: "Actions",
