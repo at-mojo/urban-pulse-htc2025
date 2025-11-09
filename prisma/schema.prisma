@@ -18,9 +18,10 @@ model Report {
   userId    String   @db.Uuid()
   title     String   @db.VarChar(128)
   desc      String   @default("") @db.Text
-  createdAt DateTime @default(now())
-  lat       String   @db.VarChar(32)
-  lon       String   @db.VarChar(32)
+  createdAt DateTime @default(now())    
+  lat       Float
+  lon       Float  
   path      String?  @db.VarChar(256)
   urgency   Urgency
+  rating    Int      @default(0)
 }
