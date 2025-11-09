@@ -47,7 +47,7 @@ export const ReportModal = ({
   fetchReports,
 }: {
   setModalOpen: (isOpen: boolean) => void;
-  mode: "new" | "edit";
+  mode: "new" | "edit" | "rate";
   report?: Report;
   fetchReports: () => void;
 }) => {
@@ -61,6 +61,8 @@ export const ReportModal = ({
     mode === "new" ? null : { lat: report?.lat || 0, lon: report?.lon || 0 }
   );
   const [imagePath, setImagePath] = useState<string | null>(null);
+  const [rating, setRating] = useState<number>(0);
+
   return createPortal(
     <div className="absolute top-0 left-0 w-full h-full bg-background/90 z-50">
       <div className="w-full h-full flex flex-col items-center justify-center">
@@ -74,7 +76,16 @@ export const ReportModal = ({
             <XIcon color="white" style={{ width: "18px", height: "18px" }} />
           </Button>
           <h1 className="text-xl font-bold font-departure-mono">
-            {mode === "new" ? "New Report" : `Edit Report: ${report?.title}`}
+            {(() => {
+                  switch(mode) {
+                  case "new":
+                    return "New Report";
+                  case "edit":
+                    return `Edit Report: ${report?.title}`;
+                  case "rate":
+                    return `Rate Report: ${report?.title}`;
+                  }
+              })()}
           </h1>
           <label htmlFor="location" className="text-sm text-foreground/50">
             Location
@@ -189,7 +200,7 @@ export const ReportModal = ({
                         urgency: urgency,
                       });
                       console.log(response);
-                    } else {
+                    } else if (mode === "edit") {
                       const response = await updateReport({
                         reportId: report?.id || "",
                         title: title,
@@ -200,6 +211,12 @@ export const ReportModal = ({
                         urgency: urgency as Urgency,
                       });
                       console.log(response);
+                    } else {
+                      // rating logic
+                      // const response = await updateVote({
+                      //   reportId: report?.id || "",
+                      //   rating: suggestion,
+                      // })
                     }
                   } catch (error) {
                     console.error("Error creating/updating report:", error);
@@ -210,7 +227,16 @@ export const ReportModal = ({
                 }
               }}
             >
-              {mode === "new" ? "Create Report" : "Save Report"}
+              {(() => {
+                  switch(mode) {
+                  case "new":
+                    return "Submit Report";
+                  case "edit":
+                    return "Save Changes";
+                  case "rate":
+                    return "Submit Rating";
+                  }
+              })()}
             </Button>
           </div>
         </div>

@@ -142,6 +142,7 @@ const columns: (
     accessorKey: "actions",
     cell: ({ row }) => {
       const [isEditReportModalOpen, setIsEditReportModalOpen] = useState(false);
+      const [isRateReportModalOpen, setIsRateReportModalOpen] = useState(false);
       return (
         <div className="flex flex-row items-center gap-2">
           <Button
@@ -159,6 +160,14 @@ const columns: (
               fetchReports={fetchReports}
             />
           )}
+          {isRateReportModalOpen && (
+            <ReportModal
+              setModalOpen={setIsRateReportModalOpen}
+              mode="rate"
+              report={row.original}
+              fetchReports={fetchReports}
+            />
+          )}
           <Button
             size="icon"
             variant="outline"
@@ -167,7 +176,7 @@ const columns: (
             <TrashIcon size={16} />
           </Button>
           {isRatingEnabled && (
-            <Button size="icon" variant="outline" onClick={() => {}}>
+            <Button size="icon" variant="outline" onClick={() => {setIsRateReportModalOpen(true)}}>
               <StarIcon size={16} />
             </Button>
           )}
