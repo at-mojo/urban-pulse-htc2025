@@ -24,4 +24,17 @@ model Report {
   path      String?  @db.VarChar(256)
   urgency   Urgency
   rating    Int      @default(0)
+  votes     Votes[]
+}
+
+enum Vote {
+  upvote
+  downvote
+}
+model Votes {
+  report    Report   @relation(fields: [reportId], references: [id])
+  userId    String   @db.Uuid()
+  reportId  String   
+  vote      Vote     
+  @@id([userId, reportId])
 }

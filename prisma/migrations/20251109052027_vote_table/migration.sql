@@ -1,0 +1,2 @@
+-- AddForeignKey
+ALTER TABLE "Votes" ADD CONSTRAINT "Votes_reportId_fkey" FOREIGN KEY ("reportId") REFERENCES "Report"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

@@ -152,3 +152,8 @@ export async function getUserReports(data: { userId: string }) {
   }
 }
 
+export async function upvoteReport(data: { id: string }) {
+  if (!isLoggedIn()) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+}
