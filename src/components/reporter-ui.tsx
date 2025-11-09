@@ -1,11 +1,13 @@
 import { PlusIcon, XIcon } from "lucide-react";
 import { Button } from "./ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { RadioGroup } from "./ui/radio-group";
 import { cn } from "@/lib/utils";
+import { GlMap } from "./gl-map";
+import { createReport } from "@/report";
 
 export const ReporterUI = () => {
   const [isNewReportModalOpen, setIsNewReportModalOpen] = useState(false);
@@ -43,6 +45,32 @@ export const NewReportModal = ({
   const [urgency, setUrgency] = useState<"LOW" | "MEDIUM" | "HIGH">("MEDIUM");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [currentLocation, setCurrentLocation] = useState<{
+    lat: number;
+    lon: number;
+  } | null>(null);
+  const [submittableLocation, setSubmittableLocation] = useState<{
+    lat: number;
+    lon: number;
+  } | null>(null);
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        console.log(position);
+        setCurrentLocation({
+          lat: position.coords.latitude,
+          lon: position.coords.longitude,
+        });
+      });
+    }
+  }, []);
+  useEffect(() => {
+    if (currentLocation) {
+      setSubmittableLocation(currentLocation);
+    } else {
+      setSubmittableLocation(null);
+    }
+  }, [currentLocation]);
   return createPortal(
     <div className="absolute top-0 left-0 w-full h-full bg-background/90 z-50">
       <div className="w-full h-full flex flex-col items-center justify-center">
@@ -58,6 +86,24 @@ export const NewReportModal = ({
           <h1 className="text-2xl font-bold font-departure-mono ">
             New Report
           </h1>
+          <label htmlFor="location" className="text-sm text-foreground/50">
+            Location
+          </label>
+          <div className="h-80 w-full relative overflow-hidden rounded-md">
+            <GlMap
+              longitude={currentLocation?.lon}
+              latitude={currentLocation?.lat}
+              zoom={currentLocation ? 17 : 11}
+            />
+            {/* Hide Mapbox attribution */}
+            <style>
+              {`
+                .mapboxgl-ctrl-attrib-inner {
+                  display: none !important;
+                }
+              `}
+            </style>
+          </div>
           <label htmlFor="urgency" className="text-sm text-foreground/50">
             Urgency
           </label>
@@ -103,6 +149,22 @@ export const NewReportModal = ({
             <Button
               variant="default"
               className="flex-1 -mx-px rounded-l-none rounded-t-none h-12 border-none"
+              disabled={!submittableLocation || !title}
+              onClick={async () => {
+                if (submittableLocation) {
+                  const response = await createReport({
+                    title,
+                    desc: description,
+                    lat: submittableLocation.lat.toString(),
+                    lon: submittableLocation.lon.toString(),
+                    path: "https://placehold.co/600x400",
+                    urgency: urgency,
+                  });
+                  if (response.ok) {
+                    setIsNewReportModalOpen(false);
+                  }
+                }
+              }}
             >
               Create Report
             </Button>

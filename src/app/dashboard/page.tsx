@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { TabButton, TabView } from "@/components/ui/tab-view";
-import "mapbox-gl/dist/mapbox-gl.css";
-import GlMap from "react-map-gl/mapbox";
+import { GlMap } from "@/components/gl-map";
 import { ReporterUI } from "@/components/reporter-ui";
+import { TabButton, TabView } from "@/components/ui/tab-view";
 
 export default function Dashboard() {
   const [value, setValue] = useState("map");
@@ -26,23 +25,7 @@ export default function Dashboard() {
       </TabView>
       {value === "map" && (
         <div className="w-full h-full relative flex flex-1">
-          <GlMap
-            mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
-            initialViewState={{
-              longitude: -114.0719,
-              latitude: 51.0447,
-              zoom: 11,
-            }}
-            style={{
-              width: "100%",
-              height: "100%",
-              position: "absolute",
-              top: 0,
-              left: 0,
-              zIndex: 0,
-            }}
-            mapStyle="mapbox://styles/mapbox/dark-v11"
-          />
+          <GlMap />
         </div>
       )}
       {value === "list" && (
