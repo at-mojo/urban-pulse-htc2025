@@ -152,12 +152,83 @@ export async function getUserReports(data: { userId: string }) {
   }
 }
 
-async function userVoteExists(reportId: string, userId: string): Promise<boolean> {
-  const vote = await prisma.vote.findFirst({
-    where: {
+async function getVote(reportId: string, userId: string) {
+  try {
+    const vote = await prisma.vote.findFirst({
+      where: {
+        reportId: reportId,
+        userId: userId
+      }
+    });
 
-export async function upvoteReport(data: { id: string }) {
+    return vote;
+  } catch (error) {
+    throw new Error("Error fetching vote");
+  }
+}
+
+// Number should be either 1 (upvote) or -1 (downvote) or 0 (remove vote)
+// Will return new vote count.
+export async function updateVote(data: { reportId: string, value: number }) {
   if (!isLoggedIn()) {
-    return new Response("Unauthorized", { status: 401 });
+    throw new Error("Unauthorized");
+  }
+
+  if (data.value !== 1 && data.value !== -1 && data.value !== 0) {
+    throw new Error("Invalid vote value");
+  }
+
+  const userId = (await stackServerApp.getUser())!.id;
+
+  try {
+    const vote = await getVote(data.reportId, userId);
+
+    // check if vote exists
+    if (vote) {
+      // if it does, modify upvote to "upvote"
+      await prisma.vote.update({
+        where: {
+          userId_reportId: {
+            userId: userId,
+            reportId: data.reportId
+          }
+        },
+        data: {
+          voteValue: data.value
+        }
+      });
+    } else {
+      prisma.vote.create({
+        data: {
+          userId: userId,
+          reportId: data.reportId,
+          voteValue: 1
+        }
+      });
+    }
+
+    const votes = await prisma.vote.findMany({
+      select: {
+        voteValue: true
+      },
+      where: {
+        reportId: data.reportId,
+      }
+    })
+
+    const voteCount = votes.reduce ((sum, vote) => sum + vote.voteValue, 0);
+
+    // Now, update report's vote counts
+    const report = await prisma.report.update({
+      where: { id: data.reportId },
+      data: {
+        rating: voteCount
+      }
+    })
+
+    return new Response(report.rating.toString(), { status: 200 });
+  } catch (error) {
+    console.error("Error upvoting report:", error);
+    throw new Error("Internal Server Error");
   }
 }

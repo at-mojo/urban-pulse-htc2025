@@ -27,14 +27,10 @@ model Report {
   votes     Vote[]
 }
 
-enum VoteValue {
-  upvote
-  downvote
-}
 model Vote {
   report    Report   @relation(fields: [reportId], references: [id])
   userId    String   @db.Uuid()
   reportId  String   
-  voteValue      VoteValue
+  voteValue Int      @default(0) // 1 for upvote, -1 for downvote, 0 for neutral
   @@id([userId, reportId])
 }
