@@ -49,10 +49,25 @@ const columns: ColumnDef<Report>[] = [
   {
     header: "Description",
     accessorKey: "desc",
+    cell: ({ row }) => {
+      return (
+        <div className="text-sm text-gray-500 line-clamp-1 max-w-[200px]">
+            {row.original.desc}
+        </div>
+      );
+    },
   },
   {
     header: "Created At",
     accessorKey: "createdAt",
+    cell: ({ row }) => {
+      return (
+        <div className="text-sm text-gray-500">
+          {/* TODO: Fix this */}
+          {new Date(row.original.createdAt).toLocaleString()}
+        </div>
+      );
+    },
   },
   {
     header: "Urgency",
