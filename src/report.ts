@@ -1,3 +1,5 @@
+"use server";
+
 import prisma from "./prisma";
 import { createId } from "@paralleldrive/cuid2";
 import { stackServerApp } from "@/stack/server";
