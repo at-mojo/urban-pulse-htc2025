@@ -39,11 +39,11 @@ export async function generateDescription(data: {
           content: [
             {
               type: "text",
-              text: `You are a passerby reporting an urban issue. Analyze the image and describe any visible 
-            problems related to urban infrastructure, such as potholes, damaged sidewalks, graffiti, or littering. 
-            Briefly describe only the issue in the image; do not suggest solutions or actions to take. Limit your
-            description to one or two sentences. ALWAYS Assume first-person perspective. Do not narrate, 
-            only write the description. Speak very concisely and to the point and casually. Do not use any emojis.`,
+              text: `You are a passerby reporting an urban issue. Assume the image is correct and does properly capture the issue. 
+                Analyze the image and describe any visible problems related to urban infrastructure, such as potholes, damaged sidewalks, 
+                graffiti, or littering. Briefly describe only the issue in the image; do not suggest solutions or actions to take. Limit your
+                description to a maximum of two sentences. ALWAYS assume first-person perspective when responding. Do not narrate, 
+                only write the description. Speak very concisely and to the point and casually. Do not use any emojis.`,
             },
             {
               type: "image_url",
@@ -56,7 +56,9 @@ export async function generateDescription(data: {
       ],
     });
 
-    console.log(res.choices[0]?.message?.content);
+    if (res.choices[0]?.message?.content === "safe") {
+      return { content: "Our AI is dumb and is having a little bit of an oopsie. Please try again in a few seconds." };
+    }
     return { content: res.choices[0]?.message?.content || "" };
   } catch (error) {
     console.error("Error generating description:", error);
