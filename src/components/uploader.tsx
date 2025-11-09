@@ -18,8 +18,6 @@ export default function Uploader({
 }: {
   setImagePath: (path: string) => void;
 }) {
-  const maxSizeMB = 5;
-  const maxSize = maxSizeMB * 1024 * 1024; // 5MB default
   const [progress, setProgress] = useState(0);
   const [
     { files, isDragging, errors },
@@ -34,7 +32,6 @@ export default function Uploader({
     },
   ] = useFileUpload({
     accept: "image/*",
-    maxSize,
   });
 
   const multipartUpload = async (file: File) => {
@@ -63,7 +60,7 @@ export default function Uploader({
       });
 
       setProgress(100);
-      setImagePath(result.fileUrl);
+      setImagePath(result.fileUrl.split(".com/")[1]);
     } catch (error) {
       console.error("Error uploading file:", error);
       setProgress(0);
@@ -99,6 +96,11 @@ export default function Uploader({
           />
           {previewUrl ? (
             <div className="absolute inset-0">
+              {progress > 0 && progress < 100 && (
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm">
+                  <p>{progress}%</p>
+                </div>
+              )}
               <Image
                 src={previewUrl}
                 alt={files[0]?.file?.name || "Uploaded image"}
@@ -117,9 +119,6 @@ export default function Uploader({
               </div>
               <p className="mb-1.5 text-sm font-medium">
                 Drop your image here or click to browse
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Max size: {maxSizeMB}MB
               </p>
             </div>
           )}
