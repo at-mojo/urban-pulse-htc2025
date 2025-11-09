@@ -165,7 +165,7 @@ export async function updateReport(data: {
   path: string,
   urgency: Urgency
 }): Promise<{ content: Report }> {
-  if (!data.reportId || !data.title || !data.desc || !data.lat || !data.lon || !data.urgency) {
+  if (!data.reportId || !data.title || !data.urgency) {
     throw new Error("Missing fields");
   }
 
@@ -334,7 +334,7 @@ export async function updateVote(data: {
       },
     });
 
-    if (votes.length == 0) {
+    if (votes.length === 0) {
       return { content: 0 };
     }
 

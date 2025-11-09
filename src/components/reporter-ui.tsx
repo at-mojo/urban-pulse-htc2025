@@ -34,10 +34,7 @@ export const ReporterUI = () => {
         </span>
       </Button>
       {isNewReportModalOpen && (
-        <ReportModal
-          setModalOpen={setIsNewReportModalOpen}
-          mode="new"
-        />
+        <ReportModal setModalOpen={setIsNewReportModalOpen} mode="new" />
       )}
     </>
   );
@@ -104,8 +101,13 @@ export const ReportModal = ({
                 Image
               </label>
             )}
-            
-            {mode === "new" && <Uploader setImagePath={setImagePath} setSuggestion={setSuggestion} />}
+
+            {mode === "new" && (
+              <Uploader
+                setImagePath={setImagePath}
+                setSuggestion={setSuggestion}
+              />
+            )}
             {mode === "edit" && report?.path ? (
               <div className="text-sm text-foreground/50">
                 <Image
@@ -174,26 +176,33 @@ export const ReportModal = ({
               onClick={async () => {
                 // TODO: When editing, do the actual edit.
                 if (submittableLocation) {
-                  if (mode === "new") { 
-                    const response = await createReport({
-                      title,
-                      desc: description,
-                      lat: submittableLocation.lat,
-                      lon: submittableLocation.lon,
-                      path: imagePath || "",
-                      urgency: urgency,
-                    }); 
-                  } else {
-                    const response = await updateReport({
-                      reportId: report?.id || "",
-                      title: title,
-                      desc: description,
-                      lat: submittableLocation.lat,
-                      lon: submittableLocation.lon,
-                      path: report?.path || "",
-                      urgency: urgency as Urgency,
-                    });
-                    console.log(response);
+                  try {
+                    if (mode === "new") {
+                      const response = await createReport({
+                        title,
+                        desc: description,
+                        lat: submittableLocation.lat,
+                        lon: submittableLocation.lon,
+                        path: imagePath || "",
+                        urgency: urgency,
+                      });
+                      console.log(response);
+                    } else {
+                      const response = await updateReport({
+                        reportId: report?.id || "",
+                        title: title,
+                        desc: description,
+                        lat: submittableLocation.lat,
+                        lon: submittableLocation.lon,
+                        path: report?.path || "",
+                        urgency: urgency as Urgency,
+                      });
+                      console.log(response);
+                    }
+                  } catch (error) {
+                    console.error("Error creating/updating report:", error);
+                  } finally {
+                    setModalOpen(false);
                   }
                 }
               }}
