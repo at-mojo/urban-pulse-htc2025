@@ -12,7 +12,7 @@ import { createReport, updateReport } from "@/report";
 import type { Report, Urgency } from "@prisma/client";
 import Image from "next/image";
 
-export const ReporterUI = () => {
+export const ReporterUI = ({ fetchReports }: { fetchReports: () => void }) => {
   const [isNewReportModalOpen, setIsNewReportModalOpen] = useState(false);
   const [isHovering, setIsHovering] = useState(false);
   return (
@@ -34,7 +34,7 @@ export const ReporterUI = () => {
         </span>
       </Button>
       {isNewReportModalOpen && (
-        <ReportModal setModalOpen={setIsNewReportModalOpen} mode="new" />
+        <ReportModal setModalOpen={setIsNewReportModalOpen} mode="new" fetchReports={fetchReports} />
       )}
     </>
   );
@@ -44,10 +44,12 @@ export const ReportModal = ({
   setModalOpen,
   mode,
   report,
+  fetchReports,
 }: {
   setModalOpen: (isOpen: boolean) => void;
   mode: "new" | "edit";
   report?: Report;
+  fetchReports: () => void;
 }) => {
   const [urgency, setUrgency] = useState<"LOW" | "MEDIUM" | "HIGH">("MEDIUM");
   const [title, setTitle] = useState(mode === "new" ? "" : report?.title || "");
@@ -203,6 +205,7 @@ export const ReportModal = ({
                     console.error("Error creating/updating report:", error);
                   } finally {
                     setModalOpen(false);
+                    fetchReports();
                   }
                 }
               }}

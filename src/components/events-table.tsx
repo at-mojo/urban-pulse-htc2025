@@ -43,7 +43,7 @@ import { getLocationString } from "@/lib/geocode";
 import { ReportModal } from "./reporter-ui";
 import { deleteReport } from "@/report";
 
-const columns: ColumnDef<Report>[] = [
+const columns: (fetchReports: () => void) =>ColumnDef<Report>[] = (fetchReports) => [
   {
     header: "Title",
     accessorKey: "title",
@@ -153,6 +153,7 @@ const columns: ColumnDef<Report>[] = [
               setModalOpen={setIsEditReportModalOpen}
               mode="edit"
               report={row.original}
+              fetchReports={fetchReports}
             />
           )}
           <Button
@@ -168,7 +169,7 @@ const columns: ColumnDef<Report>[] = [
   },
 ];
 
-export default function EventsTable({ reports }: { reports: Report[] }) {
+export default function EventsTable({ reports, fetchReports }: { reports: Report[], fetchReports: () => void }) {
   const pageSize = 10;
 
   const [pagination, setPagination] = useState<PaginationState>({
@@ -185,7 +186,7 @@ export default function EventsTable({ reports }: { reports: Report[] }) {
 
   const table = useReactTable({
     data: reports,
-    columns,
+    columns: columns(fetchReports),
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
