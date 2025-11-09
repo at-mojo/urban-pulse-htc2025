@@ -25,10 +25,27 @@ model Report {
   urgency   Urgency
   rating    Int      @default(0)
   votes     Vote[]
+  relations ReportRelation[]
+}
+
+model ReportRelation {
+  relation   Relation  @relation(fields: [relationId], references: [id], onDelete: Cascade)
+  relationId String    
+  report     Report    @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  reportId   String  
+  @@id([relationId, reportId])
+}
+
+model Relation {
+  id       String            @id @default(cuid())
+  title    String            @db.VarChar(128)
+  desc     String            @default("") @db.Text
+  urgency  Urgency           // Average urgency
+  reports  ReportRelation[]  
 }
 
 model Vote {
-  report    Report   @relation(fields: [reportId], references: [id])
+  report    Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
   userId    String   @db.Uuid()
   reportId  String   
   voteValue Int      @default(0) // 1 for upvote, -1 for downvote, 0 for neutral
