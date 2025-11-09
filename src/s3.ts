@@ -1,7 +1,18 @@
-import { S3Client, CreateMultipartUploadCommand, UploadPartCommand, CompleteMultipartUploadCommand, AbortMultipartUploadCommand } from "@aws-sdk/client-s3";
+import {
+  S3Client,
+  CreateMultipartUploadCommand,
+  UploadPartCommand,
+  CompleteMultipartUploadCommand,
+  AbortMultipartUploadCommand,
+} from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-const requiredEnv = ["AWS_REGION", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "S3_BUCKET_NAME"];
+const requiredEnv = [
+  "AWS_REGION",
+  "AWS_ACCESS_KEY_ID",
+  "AWS_SECRET_ACCESS_KEY",
+  "S3_BUCKET_NAME",
+];
 for (const v of requiredEnv) {
   if (!process.env[v]) {
     throw new Error(`Missing AWS S3 environment variable: ${v}`);
@@ -19,7 +30,17 @@ export const s3 = new S3Client({
 /**
  * Initialize a multipart upload and return presigned URLs for parts.
  */
-export async function initMultipartUpload({ fileName, fileType, fileSize, partSize }: { fileName: string; fileType: string; fileSize: number; partSize?: number; }) {
+export async function initMultipartUpload({
+  fileName,
+  fileType,
+  fileSize,
+  partSize,
+}: {
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  partSize?: number;
+}) {
   if (!fileName || !fileType || !fileSize) {
     throw new Error("fileName, fileType and fileSize required");
   }
@@ -47,7 +68,9 @@ export async function initMultipartUpload({ fileName, fileType, fileSize, partSi
       PartNumber: i,
       UploadId: uploadId,
     });
-    const uploadUrl = await getSignedUrl(s3, uploadPartCmd, { expiresIn: 3600 });
+    const uploadUrl = await getSignedUrl(s3, uploadPartCmd, {
+      expiresIn: 3600,
+    });
     parts.push({ partNumber: i, uploadUrl });
   }
 
@@ -58,8 +81,17 @@ export async function initMultipartUpload({ fileName, fileType, fileSize, partSi
 /**
  * Complete a multipart upload given the uploadId, key and parts (with ETag and PartNumber).
  */
-export async function completeMultipartUpload({ uploadId, key, parts }: { uploadId: string; key: string; parts: { ETag: string; PartNumber: number }[]; }) {
-  if (!uploadId || !key || !parts) throw new Error("uploadId, key and parts required");
+export async function completeMultipartUpload({
+  uploadId,
+  key,
+  parts,
+}: {
+  uploadId: string;
+  key: string;
+  parts: { ETag: string; PartNumber: number }[];
+}) {
+  if (!uploadId || !key || !parts)
+    throw new Error("uploadId, key and parts required");
 
   const completeCmd = new CompleteMultipartUploadCommand({
     Bucket: process.env.S3_BUCKET_NAME,
@@ -78,7 +110,13 @@ export async function completeMultipartUpload({ uploadId, key, parts }: { upload
 /**
  * Abort a multipart upload
  */
-export async function abortMultipartUpload({ uploadId, key }: { uploadId: string; key: string; }) {
+export async function abortMultipartUpload({
+  uploadId,
+  key,
+}: {
+  uploadId: string;
+  key: string;
+}) {
   if (!uploadId || !key) throw new Error("uploadId and key required");
 
   const abortCmd = new AbortMultipartUploadCommand({
