@@ -67,3 +67,75 @@ export async function compareReports(data: {
     throw new Error("Internal Server Error");
   }
 }
+
+const MAX_TITLES = 10; // Limit max titles to avoid prompt from eating shit
+const MAX_DESCRIPTIONS = 10; // This too, should probably just grab highest rated descriptions, but oh well
+
+async function normalizeTitles(titles: string[]): Promise<string> {
+  let prompt = `
+    Normalize the following related user-given report tiles into one concise title 
+    describing the urban issue. Include any identifying details like location in the title. Do
+    not include any colloquiallisms. Do not put placeholders for specific location. 
+    Respond only with the title:
+
+  `
+
+  for (let i = 0; i < MAX_TITLES; i++) {
+    prompt += `${titles[i]}\n`;
+  }
+
+  try {
+    const res = await ollama.chat({
+      model: 'llama3.2-vision',
+      messages: [{
+        'role': 'user', 
+        'content': prompt
+      }]
+    })
+
+    return res.message.content;
+  } catch (error) {
+    console.error("Error generating title:", error);
+    throw new Error("Internal Server Error"); 
+  }
+}
+
+async function generateDescriptionFromDescriptions(descriptions: string[]): Promise<string> {
+  try {
+    const res = await ollama.chat({
+      model: 'llama3.2-vision',
+      messages: [{
+        'role': 'user', 
+        'content': `
+            Normalize the following related descriptions into one description 
+            describing the urban issue. Include any identifying details like location in the title. Do
+            not include any colloquiallisms. Do not put placeholders for specific location. 
+            Respond only with the title:
+            ${descriptions.map((r) => r).join('\n')}
+        `
+      }]
+    })
+
+    return res.message.content;
+  } catch (error) {
+    console.error("Error generating title:", error);
+    throw new Error("Internal Server Error"); 
+  }
+}
+
+export async function generateRelationData(data: { 
+  titles: string[], descriptions: string[] 
+}): Promise<{ content: { title: string, description: string } }> {
+  try {
+    const title = await normalizeTitles(data.titles);
+    // const description =
+    
+    return { content: {
+      title: title,
+      description: ''
+    }}
+  } catch (error) {
+    console.error("Error generating relation data:", error);
+    throw new Error("Internal Server Error");
+  }
+}
