@@ -12,7 +12,7 @@ export const GlMap = ({
   style,
   onPinChange,
   initialPin, // optional: initial pin position
-  allowPinDrop = true, // optional: allow pin to be set on click
+  allowPinDrop = false, // optional: allow pin to be set on click
 }: {
   longitude?: number;
   latitude?: number;
@@ -64,8 +64,8 @@ export const GlMap = ({
       onClick={(e) => handleMapClick({ lngLat: [e.lngLat.lng, e.lngLat.lat] })}
     >
       {pin && (
-        <Marker longitude={pin.lon} latitude={pin.lat} anchor="bottom">
-          <MapPinIcon className="w-6 h-6 text-primary" />
+        <Marker longitude={pin.lon} latitude={pin.lat} anchor="center">
+          <MapPinIcon className="w-8 h-8 text-primary" fill="red" />
         </Marker>
       )}
     </MapBoxMap>
