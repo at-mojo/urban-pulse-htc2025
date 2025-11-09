@@ -5,7 +5,9 @@ import MapBoxMap, { Marker } from "react-map-gl/mapbox";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { MapPinIcon } from "lucide-react";
 
-export const GlMap = ({
+export type PinType<T extends object> = { id: string; lat: number; lon: number; additionalData?: T };
+
+export const GlMap = <T extends object>({
   longitude,
   latitude,
   zoom,
@@ -13,6 +15,7 @@ export const GlMap = ({
   onPinChange,
   initialPin, // optional: initial pin position
   allowPinDrop = false, // optional: allow pin to be set on click
+  pins = [],
 }: {
   longitude?: number;
   latitude?: number;
@@ -21,6 +24,7 @@ export const GlMap = ({
   onPinChange?: (coords: { lat: number; lon: number }) => void;
   initialPin?: { lat: number; lon: number };
   allowPinDrop?: boolean;
+  pins?: PinType<T>[];
 }) => {
   // State for pin (call it marker for clarity)
   const [pin, setPin] = useState<{ lat: number; lon: number } | null>(
@@ -68,6 +72,16 @@ export const GlMap = ({
           <MapPinIcon className="w-8 h-8 text-primary" fill="red" />
         </Marker>
       )}
+      {pins.map((pin) => (
+        <Marker
+          key={pin.id}
+          longitude={pin.lon}
+          latitude={pin.lat}
+          anchor="center"
+        >
+          <MapPinIcon className="w-8 h-8 text-primary" fill="red" />
+        </Marker>
+      ))}
     </MapBoxMap>
   );
 };
