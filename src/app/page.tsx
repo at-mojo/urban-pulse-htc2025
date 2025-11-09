@@ -44,17 +44,24 @@ export default function Home() {
               isNotAtY0 ? "opacity-0" : "opacity-100"
             )}
           />
-          <BlurFade className="absolute bottom-5 left-1/2 -translate-x-1/2 text-foreground/50 font-departure-mono text-sm" delay={1}>
+          <BlurFade
+            className="absolute bottom-5 left-1/2 -translate-x-1/2 text-foreground/50 font-departure-mono text-sm"
+            delay={1}
+          >
             <span>scroll down</span>
           </BlurFade>
         </div>
       </div>
       <div className="w-screen h-screen flex items-center justify-center relative">
-        <Button variant="ghost" size="lg" asChild>
-          <Link href="/dashboard">
-            <h1>Dashboard</h1>
-          </Link>
-        </Button>
+        {isNotAtY0 && (
+          <BlurFade delay={0.5}>
+            <Button variant="ghost" size="lg" asChild>
+              <Link href="/dashboard">
+                <h1>Dashboard</h1>
+              </Link>
+            </Button>
+          </BlurFade>
+        )}
       </div>
     </main>
   );
