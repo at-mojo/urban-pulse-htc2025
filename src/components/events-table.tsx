@@ -16,7 +16,6 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronUpIcon,
-  ImageIcon,
   PencilIcon,
   StarIcon,
   TrashIcon,
