@@ -62,7 +62,7 @@ export const NewReportModal = ({
             onChange={(value) => setUrgency(value)}
           />
           <label htmlFor="title" className="text-sm text-foreground/50">
-            Title
+            Title <span className="text-red-400">*</span>
           </label>
           <Input
             id="title"
