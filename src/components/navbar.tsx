@@ -10,6 +10,10 @@ export const NavBar = () => {
   const pathname = usePathname();
 
   const isLoggedIn = user !== null;
+  const isShown = pathname !== "/" && !pathname.startsWith("/handler");
+  if (!isShown) {
+    return null;
+  }
 
   const links = [
     {
