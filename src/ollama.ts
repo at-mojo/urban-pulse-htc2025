@@ -36,24 +36,30 @@ export async function generateDescription(data: { imageUrl: string }): Promise<R
   }
 }
 
-export async function compareDescriptions(data: { description1: string; description2: string }): Promise<Response> {
+export async function compareReports(data: { 
+  report1: { title: string; description: string }, 
+  report2: { title: string; description: string } 
+}): Promise<Response> {
   try {
     const res = await ollama.chat({
       model: 'llama3.2-vision',
       messages: [{
         'role': 'user',
-        'content': `Compare the two following descriptions of an urban issue. On a scale from 0 to 1, where 0 means not the same issue and 1 means the same issue,
-                    score on how confident you are that these two descriptions are of the same issue. Assume the location is about the same area. Limit your response to
-                    a single decimal number. Do not provide any reasoning or explanation, just the number.
+        'content': `Compare the two following titles and descriptions of an urban issue. On a scale from 0 to 1, where 0 means not the same issue and 1 means the same issue,
+                    score on how confident you are that these two descriptions are of the same issue. The title should be weighted much less as it is prone to human error. 
+                    Assume the location is the same area. Limit your response to a single decimal number. Do not provide any reasoning or explanation, just the number.
                     
-                    Description 1: ${data.description1}
-                    Description 2: ${data.description2}`,
+                    Title 1: ${data.report1.title}
+                    Description 1: ${data.report1.description}
+
+                    Title 2: ${data.report2.title}
+                    Description 2: ${data.report2.description}`,
       }]
     });
 
     return new Response(res.message.content, { status: 200 });
   } catch (error) {
-    console.error("Error comparing descriptions:", error);
+    console.error("Error comparing reports:", error);
     return new Response("Internal Server Error", { status: 500 });
   }
 }
