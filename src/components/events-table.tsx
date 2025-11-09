@@ -67,7 +67,7 @@ const columns: ColumnDef<Report>[] = [
           )}
         >
           {row.original.urgency.charAt(0).toUpperCase() +
-            row.original.urgency.slice(1)}
+            row.original.urgency.slice(1).toLowerCase()}
         </Badge>
       );
     },
