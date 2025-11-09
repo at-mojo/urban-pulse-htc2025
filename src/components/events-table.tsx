@@ -16,6 +16,9 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronUpIcon,
+  ImageIcon,
+  PencilIcon,
+  TrashIcon,
 } from "lucide-react";
 
 import { usePagination } from "@/hooks/use-pagination";
@@ -83,6 +86,21 @@ const columns: ColumnDef<Report>[] = [
   {
     header: "Actions",
     accessorKey: "actions",
+    cell: ({ row }) => {
+      return (
+        <div className="flex flex-row items-center gap-2">
+          <Button size="icon" variant="outline">
+            <PencilIcon size={16} />
+          </Button>
+          <Button size="icon" variant="outline">
+            <TrashIcon size={16} />
+          </Button>
+          <Button size="icon" variant="outline">
+            <ImageIcon size={16} />
+          </Button>
+        </div>
+      );
+    },
   },
 ];
 
