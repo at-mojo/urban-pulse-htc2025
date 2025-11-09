@@ -171,7 +171,10 @@ const columns: (
           <Button
             size="icon"
             variant="outline"
-            onClick={() => deleteReport({ id: row.original.id })}
+            onClick={async () => {
+              await deleteReport({ id: row.original.id });
+              fetchReports();
+            }}
           >
             <TrashIcon size={16} />
           </Button>

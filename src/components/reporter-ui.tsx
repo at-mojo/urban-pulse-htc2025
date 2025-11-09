@@ -121,7 +121,7 @@ export const ReportModal = ({
                 setSuggestion={setSuggestion}
               />
             )}
-            {mode === "edit" && report?.path ? (
+            {mode === "edit" && report?.path && report?.path.trim() !== "" ? (
               <div className="text-sm text-foreground/50">
                 <Image
                   src={`https://${process.env.NEXT_PUBLIC_S3_BUCKET_NAME}.s3.amazonaws.com/${report?.path}`}
