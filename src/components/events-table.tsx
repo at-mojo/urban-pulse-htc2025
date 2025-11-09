@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/table";
 import type { Report } from "@prisma/client";
 import { Badge } from "./ui/badge";
+import { getLocationString } from "@/lib/geocode";
 
 const columns: ColumnDef<Report>[] = [
   {
@@ -49,10 +50,43 @@ const columns: ColumnDef<Report>[] = [
   {
     header: "Description",
     accessorKey: "desc",
+    cell: ({ row }) => {
+      return (
+        <div className="text-sm text-gray-500 line-clamp-1 max-w-[200px]">
+            {row.original.desc}
+        </div>
+      );
+    },
+  },
+  {
+    header: "Location",
+    cell: ({ row }) => {
+      const [location, setLocation] = useState<string | null>(null);
+      useEffect(() => {
+        const fetchLocation = async () => {
+          const location = await getLocationString(row.original.lat, row.original.lon);
+          setLocation(location);
+        };
+        fetchLocation();
+      }, [row.original.lat, row.original.lon]);
+      return (
+        <div className="text-sm text-gray-500 line-clamp-1 max-w-[200px]">
+          {location}
+        </div>
+      );
+    },
   },
   {
     header: "Created At",
     accessorKey: "createdAt",
+    cell: ({ row }) => {
+      return (
+        <div className="text-sm text-gray-500">
+          {/* TODO: Fix this */}
+          {new Date(row.original.createdAt).toLocaleString()}
+        </div>
+      );
+    },
   },
   {
     header: "Urgency",
