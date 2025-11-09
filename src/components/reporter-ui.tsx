@@ -8,8 +8,8 @@ import { RadioGroup } from "./ui/radio-group";
 import { cn } from "@/lib/utils";
 import { GlMap } from "./gl-map";
 import Uploader from "./uploader";
-import { createReport } from "@/report";
-import type { Report } from "@prisma/client";
+import { createReport, updateReport } from "@/report";
+import type { Report, Urgency } from "@prisma/client";
 import Image from "next/image";
 
 export const ReporterUI = () => {
@@ -174,16 +174,27 @@ export const ReportModal = ({
               onClick={async () => {
                 // TODO: When editing, do the actual edit.
                 if (submittableLocation) {
-                  const response = await createReport({
-                    title,
-                    desc: description,
-                    lat: submittableLocation.lat,
-                    lon: submittableLocation.lon,
-                    path: imagePath || "",
-                    urgency: urgency,
-                  });
-
-                  console.log(response);
+                  if (mode === "new") { 
+                    const response = await createReport({
+                      title,
+                      desc: description,
+                      lat: submittableLocation.lat,
+                      lon: submittableLocation.lon,
+                      path: imagePath || "",
+                      urgency: urgency,
+                    }); 
+                  } else {
+                    const response = await updateReport({
+                      reportId: report?.id || "",
+                      title: title,
+                      desc: description,
+                      lat: submittableLocation.lat,
+                      lon: submittableLocation.lon,
+                      path: report?.path || "",
+                      urgency: urgency as Urgency,
+                    });
+                    console.log(response);
+                  }
                 }
               }}
             >
