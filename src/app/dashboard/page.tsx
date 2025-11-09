@@ -36,7 +36,7 @@ export default function Dashboard() {
           onChange={(value) => setValue(value)}
         />
         <TabButton
-          name="Overview"
+          name="Admin Overview"
           value="overview"
           selected={value === "overview"}
           onChange={(value) => setValue(value)}
