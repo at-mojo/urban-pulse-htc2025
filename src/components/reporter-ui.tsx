@@ -1,6 +1,6 @@
 import { PlusIcon, XIcon } from "lucide-react";
 import { Button } from "./ui/button";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { createPortal } from "react-dom";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
@@ -151,6 +151,13 @@ export const ReportModal = ({
             rows={4}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Tab" && !e.shiftKey) {
+                e.preventDefault();
+                setDescription(suggestion);
+                setSuggestion("");
+              }
+            }}
           />
           <div className="flex flex-row -mx-4 -mb-4">
             <Button
