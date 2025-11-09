@@ -2,7 +2,6 @@
 
 import { AlertCircleIcon, ImageUpIcon, XIcon } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 
 import { useFileUpload } from "@/hooks/use-file-upload";
 import { useEffect, useState } from "react";
