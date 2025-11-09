@@ -72,7 +72,7 @@ export default function Dashboard() {
             <h1 className="text-3xl font-bold font-departure-mono">Overview</h1>
             <div className="w-full h-full flex flex-row gap-4 bg-background rounded-xl p-4 border-2 border-border mt-4">
               <div className="flex-2 h-full">
-                <EventsTable reports={reports} fetchReports={fetchReports} />
+                <EventsTable reports={reports} fetchReports={fetchReports} isRatingEnabled={true} />
               </div>
               <div className="flex flex-col gap-4 flex-1 h-full">
                 <div className="w-full bg-background rounded-xl p-4 border-2 border-border flex flex-row items-center gap-4">

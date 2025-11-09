@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import {
-  ColumnDef,
+  type ColumnDef,
   flexRender,
   getCoreRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  PaginationState,
-  SortingState,
+  type PaginationState,
+  type SortingState,
   useReactTable,
 } from "@tanstack/react-table";
 import {
@@ -43,7 +43,10 @@ import { getLocationString } from "@/lib/geocode";
 import { ReportModal } from "./reporter-ui";
 import { deleteReport } from "@/report";
 
-const columns: (fetchReports: () => void) =>ColumnDef<Report>[] = (fetchReports) => [
+const columns: (
+  fetchReports: () => void,
+  isRatingEnabled: boolean
+) => ColumnDef<Report>[] = (fetchReports, isRatingEnabled) => [
   {
     header: "Title",
     accessorKey: "title",
@@ -163,13 +166,26 @@ const columns: (fetchReports: () => void) =>ColumnDef<Report>[] = (fetchReports)
           >
             <TrashIcon size={16} />
           </Button>
+          {isRatingEnabled && (
+            <Button size="icon" variant="outline" onClick={() => {}}>
+              <StarIcon size={16} />
+            </Button>
+          )}
         </div>
       );
     },
   },
 ];
 
-export default function EventsTable({ reports, fetchReports }: { reports: Report[], fetchReports: () => void }) {
+export default function EventsTable({
+  reports,
+  fetchReports,
+  isRatingEnabled = false,
+}: {
+  reports: Report[];
+  fetchReports: () => void;
+  isRatingEnabled?: boolean;
+}) {
   const pageSize = 10;
 
   const [pagination, setPagination] = useState<PaginationState>({
@@ -186,7 +202,7 @@ export default function EventsTable({ reports, fetchReports }: { reports: Report
 
   const table = useReactTable({
     data: reports,
-    columns: columns(fetchReports),
+    columns: columns(fetchReports, isRatingEnabled),
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
