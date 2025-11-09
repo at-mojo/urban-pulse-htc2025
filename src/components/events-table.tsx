@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/table";
 import { getAllReports } from "@/report";
 import type { Report } from "@prisma/client";
+import { Badge } from "./ui/badge";
 
 const columns: ColumnDef<Report>[] = [
   {
@@ -53,6 +54,24 @@ const columns: ColumnDef<Report>[] = [
   {
     header: "Urgency",
     accessorKey: "urgency",
+    cell: ({ row }) => {
+      return (
+        <Badge
+          variant="outline"
+          className={cn(
+            "text-xs",
+            row.original.urgency === "HIGH"
+              ? "bg-red-900 text-white"
+              : row.original.urgency === "MEDIUM"
+              ? "bg-yellow-900 text-white"
+              : "bg-green-900 text-white"
+          )}
+        >
+          {row.original.urgency.charAt(0).toUpperCase() +
+            row.original.urgency.slice(1)}
+        </Badge>
+      );
+    },
   },
   {
     header: "Rating",
