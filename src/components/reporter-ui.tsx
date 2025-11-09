@@ -9,6 +9,8 @@ import { cn } from "@/lib/utils";
 import { GlMap } from "./gl-map";
 import Uploader from "./uploader";
 import { createReport } from "@/report";
+import type { Report } from "@prisma/client";
+import Image from "next/image";
 
 export const ReporterUI = () => {
   const [isNewReportModalOpen, setIsNewReportModalOpen] = useState(false);
@@ -32,47 +34,33 @@ export const ReporterUI = () => {
         </span>
       </Button>
       {isNewReportModalOpen && (
-        <NewReportModal setIsNewReportModalOpen={setIsNewReportModalOpen} />
+        <ReportModal
+          setModalOpen={setIsNewReportModalOpen}
+          mode="new"
+        />
       )}
     </>
   );
 };
 
-export const NewReportModal = ({
-  setIsNewReportModalOpen,
+export const ReportModal = ({
+  setModalOpen,
+  mode,
+  report,
 }: {
-  setIsNewReportModalOpen: (isOpen: boolean) => void;
+  setModalOpen: (isOpen: boolean) => void;
+  mode: "new" | "edit";
+  report?: Report;
 }) => {
   const [urgency, setUrgency] = useState<"LOW" | "MEDIUM" | "HIGH">("MEDIUM");
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [currentLocation, setCurrentLocation] = useState<{
-    lat: number;
-    lon: number;
-  } | null>(null);
-  const [submittableLocation, setSubmittableLocation] = useState<{
-    lat: number;
-    lon: number;
-  } | null>(null);
+  const [title, setTitle] = useState(mode === "new" ? "" : report?.title || "");
+  const [description, setDescription] = useState(
+    mode === "new" ? "" : report?.desc || ""
+  );
+  const [submittableLocation, setSubmittableLocation] = useState(
+    mode === "new" ? null : { lat: report?.lat || 0, lon: report?.lon || 0 }
+  );
   const [imagePath, setImagePath] = useState<string | null>(null);
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        console.log(position);
-        setCurrentLocation({
-          lat: position.coords.latitude,
-          lon: position.coords.longitude,
-        });
-      });
-    }
-  }, []);
-  useEffect(() => {
-    if (currentLocation) {
-      setSubmittableLocation(currentLocation);
-    } else {
-      setSubmittableLocation(null);
-    }
-  }, [currentLocation]);
   return createPortal(
     <div className="absolute top-0 left-0 w-full h-full bg-background/90 z-50">
       <div className="w-full h-full flex flex-col items-center justify-center">
@@ -81,26 +69,26 @@ export const NewReportModal = ({
             variant="ghost"
             size="icon"
             className="absolute top-4 right-4"
-            onClick={() => setIsNewReportModalOpen(false)}
+            onClick={() => setModalOpen(false)}
           >
             <XIcon color="white" style={{ width: "18px", height: "18px" }} />
           </Button>
-          <h1 className="text-2xl font-bold font-departure-mono ">
-            New Report
+          <h1 className="text-xl font-bold font-departure-mono">
+            {mode === "new" ? "New Report" : `Edit Report: ${report?.title}`}
           </h1>
           <label htmlFor="location" className="text-sm text-foreground/50">
             Location
           </label>
           <div className="min-h-80 h-80 w-full relative overflow-hidden rounded-md">
             <GlMap
-              longitude={currentLocation?.lon}
-              latitude={currentLocation?.lat}
-              zoom={currentLocation ? 17 : 11}
+              longitude={submittableLocation?.lon}
+              latitude={submittableLocation?.lat}
+              zoom={submittableLocation ? 17 : 11}
               onPinChange={(coords) => setSubmittableLocation(coords)}
               initialPin={submittableLocation || undefined}
               allowPinDrop={true}
             />
-            {/* Hide Mapbox attribution */}
+            {/* Hide Mapbox attribution because it gets in the way - not because we don't absolutely love mapbox <3 */}
             <style>
               {`
                 .mapboxgl-ctrl-attrib-inner {
@@ -113,8 +101,19 @@ export const NewReportModal = ({
             <label htmlFor="image" className="text-sm text-foreground/50">
               Image
             </label>
+            {mode === "new" && <Uploader setImagePath={setImagePath} />}
+            {mode === "edit" && (
+              <div className="text-sm text-foreground/50">
+                <Image
+                  src={`https://${process.env.NEXT_PUBLIC_S3_BUCKET_NAME}.s3.amazonaws.com/${report?.path}`}
+                  alt={report?.title || "Report Image"}
+                  width={1000}
+                  height={1000}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+            )}
           </div>
-          <Uploader setImagePath={setImagePath} />
           <label htmlFor="urgency" className="text-sm text-foreground/50">
             Urgency
           </label>
@@ -153,7 +152,7 @@ export const NewReportModal = ({
             <Button
               variant="outline"
               className="flex-1 -mx-px rounded-r-none rounded-t-none h-12 border-none"
-              onClick={() => setIsNewReportModalOpen(false)}
+              onClick={() => setModalOpen(false)}
             >
               Cancel
             </Button>
@@ -162,6 +161,7 @@ export const NewReportModal = ({
               className="flex-1 -mx-px rounded-l-none rounded-t-none h-12 border-none"
               disabled={!submittableLocation || !title}
               onClick={async () => {
+                // TODO: When editing, do the actual edit.
                 if (submittableLocation) {
                   const response = await createReport({
                     title,
@@ -176,7 +176,7 @@ export const NewReportModal = ({
                 }
               }}
             >
-              Create Report
+              {mode === "new" ? "Create Report" : "Save Report"}
             </Button>
           </div>
         </div>

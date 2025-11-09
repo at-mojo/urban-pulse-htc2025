@@ -41,6 +41,8 @@ import {
 import type { Report } from "@prisma/client";
 import { Badge } from "./ui/badge";
 import { getLocationString } from "@/lib/geocode";
+import { ReportModal } from "./reporter-ui";
+import { deleteReport } from "@/report";
 
 const columns: ColumnDef<Report>[] = [
   {
@@ -53,7 +55,7 @@ const columns: ColumnDef<Report>[] = [
     cell: ({ row }) => {
       return (
         <div className="text-sm text-gray-500 line-clamp-1 max-w-[200px]">
-            {row.original.desc}
+          {row.original.desc}
         </div>
       );
     },
@@ -64,7 +66,10 @@ const columns: ColumnDef<Report>[] = [
       const [location, setLocation] = useState<string | null>(null);
       useEffect(() => {
         const fetchLocation = async () => {
-          const location = await getLocationString(row.original.lat, row.original.lon);
+          const location = await getLocationString(
+            row.original.lat,
+            row.original.lon
+          );
           setLocation(location);
         };
         fetchLocation();
@@ -120,7 +125,11 @@ const columns: ColumnDef<Report>[] = [
             <StarIcon key={`star-${row.original.id}-${index}`} size={16} />
           ))}
           {Array.from({ length: 5 - row.original.rating }).map((_, index) => (
-            <StarIcon key={`star-${row.original.id}-${index}`} size={16} className="text-gray-700" />
+            <StarIcon
+              key={`star-${row.original.id}-${index}`}
+              size={16}
+              className="text-gray-700"
+            />
           ))}
         </div>
       );
@@ -130,16 +139,29 @@ const columns: ColumnDef<Report>[] = [
     header: "Actions",
     accessorKey: "actions",
     cell: ({ row }) => {
+      const [isEditReportModalOpen, setIsEditReportModalOpen] = useState(false);
       return (
         <div className="flex flex-row items-center gap-2">
-          <Button size="icon" variant="outline">
+          <Button
+            size="icon"
+            variant="outline"
+            onClick={() => setIsEditReportModalOpen(true)}
+          >
             <PencilIcon size={16} />
           </Button>
-          <Button size="icon" variant="outline">
+          {isEditReportModalOpen && (
+            <ReportModal
+              setModalOpen={setIsEditReportModalOpen}
+              mode="edit"
+              report={row.original}
+            />
+          )}
+          <Button
+            size="icon"
+            variant="outline"
+            onClick={() => deleteReport({ id: row.original.id })}
+          >
             <TrashIcon size={16} />
-          </Button>
-          <Button size="icon" variant="outline">
-            <ImageIcon size={16} />
           </Button>
         </div>
       );
