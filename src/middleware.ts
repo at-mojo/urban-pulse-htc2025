@@ -7,7 +7,6 @@ export default async function middleware(request: NextRequest) {
 
   // Get user from session/auth (null if not logged in)
   const user = await stackServerApp.getUser();
-  console.log(user);
 
   // If user is logged in and accessing '/', redirect to /dashboard
   if (pathname === "/" && user?.id !== undefined) {
