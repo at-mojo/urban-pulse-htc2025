@@ -21,6 +21,6 @@ model Report {
   createdAt DateTime @default(now())
   lat       String   @db.VarChar(32)
   lon       String   @db.VarChar(32)
-  path      String   @db.VarChar(256)
+  path      String?  @db.VarChar(256)
   urgency   Urgency
 }

@@ -34,10 +34,6 @@ export async function createReport(data: {
     return new Response("Location is required", { status: 400 });
   }
 
-  if (!data.path) {
-    return new Response("Image path is required", { status: 400 });
-  }
-
   if (!data.urgency || (data.urgency !== "LOW" && data.urgency !== "MEDIUM" && data.urgency !== "HIGH")) {
     return new Response("Invalid urgency level", { status: 400 });
   }
@@ -51,7 +47,7 @@ export async function createReport(data: {
         desc: data.desc || "",
         lat: data.lat,
         lon: data.lon,
-        path: data.path,
+        path: data.path || null,
         urgency: data.urgency,
       }
     })
