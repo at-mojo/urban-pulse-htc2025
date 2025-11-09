@@ -1,8 +1,11 @@
 import { Ollama } from 'ollama';
+import { s3 } from './s3';
 
 const ollama = new Ollama({
   host: process.env.OLLAMA_HOST
 });
+
+const s3bucketUrl = `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com`;
 
 async function getImageBase64FromUrl(url: string): Promise<string> {
   const response = await fetch(url);
@@ -13,9 +16,9 @@ async function getImageBase64FromUrl(url: string): Promise<string> {
   return Buffer.from(arrayBuffer).toString('base64');
 }
 
-export async function generateDescription(data: { imageUrl: string }): Promise<Response> {
+export async function generateDescription(data: { imagePath: string }): Promise<Response> {
   try {
-    const image = await getImageBase64FromUrl(data.imageUrl);
+    const image = await getImageBase64FromUrl(`${s3bucketUrl}/${data.imagePath}`);
   
     const res = await ollama.chat({
       model: 'llama3.2-vision',
