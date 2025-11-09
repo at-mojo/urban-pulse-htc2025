@@ -52,15 +52,36 @@ export default function Home() {
           </BlurFade>
         </div>
       </div>
-      <div className="w-screen h-screen flex items-center justify-center relative">
+      <div className="w-screen h-screen flex flex-col items-center justify-center relative gap-4">
         {isNotAtY0 && (
-          <BlurFade delay={0.5}>
-            <Button variant="ghost" size="lg" asChild>
-              <Link href="/dashboard">
-                <h1>Dashboard</h1>
-              </Link>
-            </Button>
-          </BlurFade>
+          <>
+            <BlurFade delay={0.5}>
+              <div className="font-departure-mono">
+                <p>
+                  The beating heart of a city is its people.
+                </p>
+              </div>
+            </BlurFade>
+            <BlurFade delay={0.75}>
+              <div className="font-departure-mono">
+                <p>
+                  Inform local government and businesses of issues in your community. Help make your city a better place.
+                </p>
+              </div>
+            </BlurFade>
+            <BlurFade delay={1}>
+              <Button
+                variant="ghost"
+                size="lg"
+                asChild
+                className="font-departure-mono text-2xl p-6"
+              >
+                <Link href="/handler/sign-in">
+                  <h1>Get Started</h1>
+                </Link>
+              </Button>
+            </BlurFade>
+          </>
         )}
       </div>
     </main>

@@ -23,7 +23,7 @@ export const NavBar = () => {
     },
     {
       show: !isLoggedIn,
-      href: "/handler/sign-up",
+      href: "/handler/sign-in",
       label: "Sign In",
     },
     {
