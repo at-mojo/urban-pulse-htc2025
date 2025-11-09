@@ -8,6 +8,7 @@ import { RadioGroup } from "./ui/radio-group";
 import { cn } from "@/lib/utils";
 import { GlMap } from "./gl-map";
 import Uploader from "./uploader";
+import { createReport } from "@/report";
 
 export const ReporterUI = () => {
   const [isNewReportModalOpen, setIsNewReportModalOpen] = useState(false);
@@ -53,6 +54,7 @@ export const NewReportModal = ({
     lat: number;
     lon: number;
   } | null>(null);
+  const [imagePath, setImagePath] = useState<string | null>(null);
   useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((position) => {
@@ -112,7 +114,7 @@ export const NewReportModal = ({
               Image
             </label>
           </div>
-          <Uploader />
+          <Uploader setImagePath={setImagePath} />
           <label htmlFor="urgency" className="text-sm text-foreground/50">
             Urgency
           </label>
@@ -161,15 +163,16 @@ export const NewReportModal = ({
               disabled={!submittableLocation || !title}
               onClick={async () => {
                 if (submittableLocation) {
-                  // TODO: Fix hehehhehe
-                  // const response = await createReport({
-                  //   title,
-                  //   desc: description,
-                  //   lat: submittableLocation.lat.toString(),
-                  //   lon: submittableLocation.lon.toString(),
-                  //   path: "https://placehold.co/600x400",
-                  //   urgency: urgency,
-                  // });
+                  const response = await createReport({
+                    title,
+                    desc: description,
+                    lat: submittableLocation.lat,
+                    lon: submittableLocation.lon,
+                    path: imagePath || "",
+                    urgency: urgency,
+                  });
+
+                  console.log(response);
                 }
               }}
             >

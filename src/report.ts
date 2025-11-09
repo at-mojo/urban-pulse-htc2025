@@ -11,58 +11,63 @@ function isLoggedIn(): boolean {
 
 // Create Report
 export async function createReport(data: {
-  title: string,
-  desc?: string,
-  lat: string,
-  lon: string,
-  path: string,
-  urgency: string,
+  title: string;
+  desc?: string;
+  lat: number;
+  lon: number;
+  path: string;
+  urgency: string;
 }) {
   if (!isLoggedIn()) {
-    return new Response("Unauthorized", { status: 401 });
+    throw new Error("Unauthorized");
   }
 
   // Check inputs
   if (!data.title) {
-    return new Response("Title is required", { status: 400 });
+    throw new Error("Title is required");
   }
 
   if (data.title.length > 128) {
-    return new Response("Title must be less than 128 characters", { status: 400 });
+    throw new Error("Title must be less than 128 characters");
   }
 
   if (!data.lat || !data.lon) {
-    return new Response("Location is required", { status: 400 });
+    throw new Error("Location is required");
   }
 
-  if (!data.urgency || (data.urgency !== "LOW" && data.urgency !== "MEDIUM" && data.urgency !== "HIGH")) {
-    return new Response("Invalid urgency level", { status: 400 });
+  if (
+    !data.urgency ||
+    (data.urgency !== "LOW" &&
+      data.urgency !== "MEDIUM" &&
+      data.urgency !== "HIGH")
+  ) {
+    throw new Error("Invalid urgency level");
   }
 
   try {
     const user = await stackServerApp.getUser();
     if (!user) {
-      return new Response("Unauthorized", { status: 401 });
+      throw new Error("Unauthorized");
     }
     await prisma.report.create({
       data: {
         id: createId(),
-        userId: (user ? user.id : ""),
+        userId: user ? user.id : "",
         title: data.title,
         desc: data.desc || "",
         lat: data.lat,
         lon: data.lon,
         path: data.path,
         urgency: data.urgency,
-      }
-    })
-    
-    return JSON.stringify({ message: "Report created successfully" });
+      },
+    });
+
+    return { message: "Report created successfully" };
   } catch (error) {
     console.error("Error creating report:", error);
-    return new Response("Internal Server Error", { status: 500 });
+    throw new Error("Internal Server Error");
   }
-};
+}
 
 // Get All Reports
 export async function getAllReports() {
@@ -73,19 +78,25 @@ export async function getAllReports() {
   try {
     const reports = await prisma.report.findMany({
       orderBy: {
-        createdAt: 'desc',
-      }
-    })
+        createdAt: "desc",
+      },
+    });
 
     return JSON.parse(JSON.stringify(reports));
   } catch (error) {
     console.error("Error fetching reports:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
   }
-};
+}
 
 // Get paginated Reports
-export async function getPaginatedReports(data: { page: number; pageSize: number }) {
+export async function getPaginatedReports(data: {
+  page: number;
+  pageSize: number;
+}) {
   if (!isLoggedIn()) {
     return new Response("Unauthorized", { status: 401 });
   }
@@ -95,8 +106,8 @@ export async function getPaginatedReports(data: { page: number; pageSize: number
       skip: (data.page - 1) * data.pageSize,
       take: data.pageSize,
       orderBy: {
-        createdAt: 'desc',
-      }
+        createdAt: "desc",
+      },
     });
 
     return new Response(JSON.stringify(reports), { status: 200 });
@@ -117,9 +128,9 @@ export async function getReport(data: { id: string }) {
   }
 
   try {
-    const report = await prisma.report.findUnique({ 
-      where: { id: data.id}
-    })
+    const report = await prisma.report.findUnique({
+      where: { id: data.id },
+    });
   } catch (error) {
     console.error("Error fetching report:", error);
     return new Response("Internal Server Error", { status: 500 });
@@ -138,12 +149,12 @@ export async function getUserReports(data: { userId: string }) {
   }
 
   try {
-    const reports = await prisma.report.findMany({ 
+    const reports = await prisma.report.findMany({
       where: { userId: data.userId },
       orderBy: {
-        createdAt: 'desc',
-      }
-    })
+        createdAt: "desc",
+      },
+    });
 
     return new Response(JSON.stringify(reports), { status: 200 });
   } catch (error) {

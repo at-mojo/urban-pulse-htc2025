@@ -5,11 +5,22 @@ import Image from "next/image";
 import Link from "next/link";
 
 import { useFileUpload } from "@/hooks/use-file-upload";
+import { useEffect, useState } from "react";
+import {
+  completeMultipartUpload,
+  initMultipartUpload,
+  uploadFileParts,
+} from "@/s3";
+import { createId } from "@paralleldrive/cuid2";
 
-export default function Uploader() {
+export default function Uploader({
+  setImagePath,
+}: {
+  setImagePath: (path: string) => void;
+}) {
   const maxSizeMB = 5;
   const maxSize = maxSizeMB * 1024 * 1024; // 5MB default
-
+  const [progress, setProgress] = useState(0);
   const [
     { files, isDragging, errors },
     {
@@ -26,8 +37,47 @@ export default function Uploader() {
     maxSize,
   });
 
-  const previewUrl = files[0]?.preview || null;
+  const multipartUpload = async (file: File) => {
+    try {
+      setProgress(0);
+      const CHUNK_SIZE = 5 * 1024 * 1024; // 5MB chunks
 
+      const { uploadId, key, parts } = await initMultipartUpload({
+        fileName: `${createId()}.${file.name.split(".").pop()}`,
+        fileType: file.type,
+        fileSize: file.size,
+        partSize: CHUNK_SIZE,
+      });
+
+      const uploadedParts = await uploadFileParts(
+        file,
+        parts,
+        CHUNK_SIZE,
+        setProgress
+      );
+
+      const result = await completeMultipartUpload({
+        uploadId,
+        key,
+        parts: uploadedParts,
+      });
+
+      setProgress(100);
+      setImagePath(result.fileUrl);
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      setProgress(0);
+    }
+  };
+
+  const previewUrl = files[0]?.preview || null;
+  // biome-ignore lint/correctness/useExhaustiveDependencies: We don't want to keep rerendering on multipartUpload fn change
+  useEffect(() => {
+    if (files[0]?.file) {
+      console.log("Uploading file:", files[0]?.file);
+      multipartUpload(files[0]?.file as File);
+    }
+  }, [files[0]?.file]);
   return (
     <div className="flex flex-col gap-2 w-full">
       <div className="relative w-full">
