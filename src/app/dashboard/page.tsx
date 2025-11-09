@@ -46,8 +46,8 @@ export default function Dashboard() {
             pins={[
               ...reports.map((report) => ({
                 id: report.id,
-                lat: parseFloat(report.lat),
-                lon: parseFloat(report.lon),
+                lat: report.lat,
+                lon: report.lon,
                 additionalData: report,
               })),
             ]}
