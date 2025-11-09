@@ -48,6 +48,6 @@ model Vote {
   report    Report   @relation(fields: [reportId], references: [id], onDelete: Cascade)
   userId    String   @db.Uuid()
   reportId  String   
-  voteValue Int      @default(0) // 1 for upvote, -1 for downvote, 0 for neutral
+  voteValue Float      @default(0) // 5 star system
   @@id([userId, reportId])
 }
