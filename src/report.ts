@@ -39,10 +39,6 @@ export async function createReport(data: {
   path: string;
   urgency: string;
 }): Promise<{ message: string }> {
-  if (!isLoggedIn()) {
-    throw new Error("Unauthorized");
-  }
-
   // Check inputs
   if (!data.title) {
     throw new Error("Title is required");
@@ -164,10 +160,6 @@ export async function getReport(data: {
 export async function deleteReport(data: {
   id: string;
 }): Promise<{ content: string }> {
-  if (!isLoggedIn()) {
-    throw new Error("Unauthorized");
-  }
-
   if (!data.id) {
     throw new Error("Report ID is required");
   }
@@ -246,17 +238,12 @@ async function getVote(reportId: string, userId: string) {
   }
 }
 
-// Number should be either 1 (upvote) or -1 (downvote) or 0 (remove vote)
-// Will return new vote count.
+// Number should be a value from 0 to 5 stars
 export async function updateVote(data: {
   reportId: string;
   value: number;
 }): Promise<{ content: number }> {
-  if (!isLoggedIn()) {
-    throw new Error("Unauthorized");
-  }
-
-  if (data.value !== 1 && data.value !== -1 && data.value !== 0) {
+  if (data.value < 0 || data.value > 5) {
     throw new Error("Invalid vote value");
   }
 
@@ -283,11 +270,11 @@ export async function updateVote(data: {
         },
       });
     } else {
-      prisma.vote.create({
+      await prisma.vote.create({
         data: {
           userId: user.id,
           reportId: data.reportId,
-          voteValue: 1,
+          voteValue: data.value,
         },
       });
     }
@@ -301,17 +288,22 @@ export async function updateVote(data: {
       },
     });
 
-    const voteCount = votes.reduce((sum, vote) => sum + vote.voteValue, 0);
+    if (votes.length == 0) {
+      return { content: 0 };
+    }
+
+    const rating = (votes.reduce((sum, vote) => sum + vote.voteValue, 0)) / votes.length;
 
     // Now, update report's vote counts
-    const report = await prisma.report.update({
+    await prisma.report.update({
       where: { id: data.reportId },
       data: {
-        rating: voteCount,
+        rating: rating,
       },
     });
 
-    return { content: report.rating };
+    return { content: rating };
+
   } catch (error) {
     console.error("Error upvoting report:", error);
     throw new Error("Internal Server Error");
@@ -429,7 +421,7 @@ export async function getNearbyReportClusters(
   return clusters;
 }
 
-export async function getUserReportCount(data: {
+export async function getReportRating(data: {
   id: string;
 }): Promise<{ content: number }> {
   if (!isLoggedIn()) {
@@ -437,10 +429,15 @@ export async function getUserReportCount(data: {
   }
 
   try {
-    const count = await prisma.report.count({
-      where: { userId: data.id },
+    const res = await prisma.report.findFirst({
+      where: { id: data.id },
     });
-    return { content: count };
+
+    if (!res) {
+      return { content: 0 };
+    }
+
+    return { content: res.rating };
   } catch (error) {
     console.error("Error counting user reports:", error);
     throw new Error("Internal Server Error");
