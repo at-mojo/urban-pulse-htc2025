@@ -6,6 +6,8 @@ import { ReporterUI } from "@/components/reporter-ui";
 import { TabButton, TabView } from "@/components/ui/tab-view";
 import type { Report } from "@prisma/client";
 import { getAllReports } from "@/report";
+import EventsTable from "@/components/events-table";
+import { ChevronsUpIcon, ChevronUpIcon, MinusIcon } from "lucide-react";
 export default function Dashboard() {
   const [value, setValue] = useState("map");
   const [reports, setReports] = useState<Report[]>([]);
@@ -32,9 +34,9 @@ export default function Dashboard() {
           onChange={(value) => setValue(value)}
         />
         <TabButton
-          name="List"
-          value="list"
-          selected={value === "list"}
+          name="Overview"
+          value="overview"
+          selected={value === "overview"}
           onChange={(value) => setValue(value)}
         />
       </TabView>
@@ -52,10 +54,26 @@ export default function Dashboard() {
           />
         </div>
       )}
-      {value === "list" && (
+      {value === "overview" && (
         <div className="w-full h-full relative flex flex-1">
-          <div className="w-full h-full bg-background rounded-md">
-            <h1>List</h1>
+          <div className="w-full h-full bg-background rounded-md p-4">
+            <h1 className="text-3xl font-bold font-departure-mono">Overview</h1>
+            <div className="w-full h-full flex flex-row gap-4 bg-background rounded-xl p-4 border-2 border-border mt-4">
+              <div className="flex-2 h-full">
+                <EventsTable />
+              </div>
+              <div className="flex flex-col gap-4 flex-1 h-full">
+                <div className="w-full bg-background rounded-xl p-4 border-2 border-border flex flex-row items-center gap-4">
+                  <ChevronsUpIcon className="w-32 h-32" color="#e44d4d" /> <span className="text-2xl font-bold font-departure-mono">7 High Priority Reports</span>
+                </div>
+                <div className="w-full bg-background rounded-xl p-4 border-2 border-border flex flex-row items-center gap-4">
+                  <ChevronUpIcon className="w-32 h-32" color="#f18227" /> <span className="text-2xl font-bold font-departure-mono">10 Medium Priority Reports</span>
+                </div>
+                <div className="w-full bg-background rounded-xl p-4 border-2 border-border flex flex-row items-center gap-4">
+                  <MinusIcon className="w-32 h-32" color="#0ea55f" /> <span className="text-2xl font-bold font-departure-mono">10 Low Priority Reports</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
