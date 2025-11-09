@@ -16,6 +16,10 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   ChevronUpIcon,
+  ImageIcon,
+  PencilIcon,
+  StarIcon,
+  TrashIcon,
 } from "lucide-react";
 
 import { usePagination } from "@/hooks/use-pagination";
@@ -67,7 +71,7 @@ const columns: ColumnDef<Report>[] = [
           )}
         >
           {row.original.urgency.charAt(0).toUpperCase() +
-            row.original.urgency.slice(1)}
+            row.original.urgency.slice(1).toLowerCase()}
         </Badge>
       );
     },
@@ -75,14 +79,37 @@ const columns: ColumnDef<Report>[] = [
   {
     header: "Rating",
     accessorKey: "rating",
-  },
-  {
-    header: "Votes",
-    accessorKey: "votes",
+    cell: ({ row }) => {
+      return (
+        <div className="flex flex-row items-center gap-2">
+          {Array.from({ length: row.original.rating }).map((_, index) => (
+            <StarIcon key={`star-${row.original.id}-${index}`} size={16} />
+          ))}
+          {Array.from({ length: 5 - row.original.rating }).map((_, index) => (
+            <StarIcon key={`star-${row.original.id}-${index}`} size={16} className="text-gray-700" />
+          ))}
+        </div>
+      );
+    },
   },
   {
     header: "Actions",
     accessorKey: "actions",
+    cell: ({ row }) => {
+      return (
+        <div className="flex flex-row items-center gap-2">
+          <Button size="icon" variant="outline">
+            <PencilIcon size={16} />
+          </Button>
+          <Button size="icon" variant="outline">
+            <TrashIcon size={16} />
+          </Button>
+          <Button size="icon" variant="outline">
+            <ImageIcon size={16} />
+          </Button>
+        </div>
+      );
+    },
   },
 ];
 

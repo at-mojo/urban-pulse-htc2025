@@ -3,7 +3,7 @@
 import prisma from "./prisma";
 import { createId } from "@paralleldrive/cuid2";
 import { stackServerApp } from "@/stack/server";
-import { NextResponse } from "next/server";
+import type { Report } from "@prisma/client";
 
 function isLoggedIn(): boolean {
   return !!stackServerApp.getUser;
@@ -98,12 +98,10 @@ export async function getAllReports() {
 
   try {
     const reports = await prisma.report.findMany({
-      orderBy: {
-        createdAt: "desc",
-      },
+      orderBy: [{ urgency: "desc" }, { createdAt: "desc" }],
     });
 
-    return { content: reports}
+    return { content: reports };
   } catch (error) {
     console.error("Error fetching reports:", error);
     throw new Error("Internal Server Error");
@@ -114,7 +112,7 @@ export async function getAllReports() {
 export async function getPaginatedReports(data: {
   page: number;
   pageSize: number;
-}): Promise<{ content: any[] }> {
+}): Promise<{ content: Report[] }> {
   if (!isLoggedIn()) {
     throw new Error("Unauthorized");
   }
@@ -136,7 +134,9 @@ export async function getPaginatedReports(data: {
 }
 
 // Get one report
-export async function getReport(data: { id: string }): Promise<{ content: any }> {
+export async function getReport(data: {
+  id: string;
+}): Promise<{ content: Report }> {
   if (!isLoggedIn()) {
     throw new Error("Unauthorized");
   }
@@ -149,6 +149,9 @@ export async function getReport(data: { id: string }): Promise<{ content: any }>
     const report = await prisma.report.findUnique({
       where: { id: data.id },
     });
+    if (!report) {
+      throw new Error("Report not found");
+    }
 
     return { content: report };
   } catch (error) {
@@ -158,7 +161,9 @@ export async function getReport(data: { id: string }): Promise<{ content: any }>
 }
 
 // Be able to delete own report
-export async function deleteReport(data: { id: string }): Promise<{ content: string }> {
+export async function deleteReport(data: {
+  id: string;
+}): Promise<{ content: string }> {
   if (!isLoggedIn()) {
     throw new Error("Unauthorized");
   }
@@ -169,21 +174,26 @@ export async function deleteReport(data: { id: string }): Promise<{ content: str
 
   try {
     // make sure user owns the report
-    const userId = (await stackServerApp.getUser())!.id;
+    const user = await stackServerApp.getUser()
+    if (!user) {
+      throw new Error("Unauthorized");
+    }
     const report = await prisma.report.findUnique({
-      where: { 
+      where: {
         id: data.id,
-        userId: userId
+        userId: user.id,
       },
     });
 
     if (!report) {
-      throw new Error("Report not found or you do not have permission to delete it");
+      throw new Error(
+        "Report not found or you do not have permission to delete it"
+      );
     }
 
     await prisma.report.delete({
-      where: { 
-        id: data.id 
+      where: {
+        id: data.id,
       },
     });
     return { content: "Report deleted successfully" };
@@ -195,7 +205,9 @@ export async function deleteReport(data: { id: string }): Promise<{ content: str
 
 // Get user's reports
 // Can be used to get own reports or another user's reports, only works when logged in
-export async function getUserReports(data: { userId: string }): Promise<{ content: any[] }> {
+export async function getUserReports(data: {
+  userId: string;
+}): Promise<{ content: Report[] }> {
   if (!isLoggedIn()) {
     throw new Error("Unauthorized");
   }
@@ -224,19 +236,22 @@ async function getVote(reportId: string, userId: string) {
     const vote = await prisma.vote.findFirst({
       where: {
         reportId: reportId,
-        userId: userId
-      }
+        userId: userId,
+      },
     });
 
     return vote;
-  } catch (error) {
+  } catch (_) {
     throw new Error("Error fetching vote");
   }
 }
 
 // Number should be either 1 (upvote) or -1 (downvote) or 0 (remove vote)
 // Will return new vote count.
-export async function updateVote(data: { reportId: string, value: number }): Promise<{ content: number }> {
+export async function updateVote(data: {
+  reportId: string;
+  value: number;
+}): Promise<{ content: number }> {
   if (!isLoggedIn()) {
     throw new Error("Unauthorized");
   }
@@ -245,10 +260,13 @@ export async function updateVote(data: { reportId: string, value: number }): Pro
     throw new Error("Invalid vote value");
   }
 
-  const userId = (await stackServerApp.getUser())!.id;
+  const user = await stackServerApp.getUser()
+  if (!user) {
+    throw new Error("Unauthorized");
+  }
 
   try {
-    const vote = await getVote(data.reportId, userId);
+    const vote = await getVote(data.reportId, user.id);
 
     // check if vote exists
     if (vote) {
@@ -256,42 +274,42 @@ export async function updateVote(data: { reportId: string, value: number }): Pro
       await prisma.vote.update({
         where: {
           userId_reportId: {
-            userId: userId,
-            reportId: data.reportId
-          }
+            userId: user.id,
+            reportId: data.reportId,
+          },
         },
         data: {
-          voteValue: data.value
-        }
+          voteValue: data.value,
+        },
       });
     } else {
       prisma.vote.create({
         data: {
-          userId: userId,
+          userId: user.id,
           reportId: data.reportId,
-          voteValue: 1
-        }
+          voteValue: 1,
+        },
       });
     }
 
     const votes = await prisma.vote.findMany({
       select: {
-        voteValue: true
+        voteValue: true,
       },
       where: {
         reportId: data.reportId,
-      }
-    })
+      },
+    });
 
-    const voteCount = votes.reduce ((sum, vote) => sum + vote.voteValue, 0);
+    const voteCount = votes.reduce((sum, vote) => sum + vote.voteValue, 0);
 
     // Now, update report's vote counts
     const report = await prisma.report.update({
       where: { id: data.reportId },
       data: {
-        rating: voteCount
-      }
-    })
+        rating: voteCount,
+      },
+    });
 
     return { content: report.rating };
   } catch (error) {
@@ -325,7 +343,10 @@ export async function getNearbyReportClusters(
   thresholdMeters = 100,
   minGroupSize = 2
 ): Promise<
-  { center: { lat: number; lon: number }; members: { id: string; lat: number; lon: number }[] }[]
+  {
+    center: { lat: number; lon: number };
+    members: { id: string; lat: number; lon: number }[];
+  }[]
 > {
   if (!isLoggedIn() || !stackServerApp.getUser) {
     throw new Error("Unauthorized");
@@ -347,7 +368,12 @@ export async function getNearbyReportClusters(
   const adj: number[][] = Array.from({ length: n }, () => []);
   for (let i = 0; i < n; i++) {
     for (let j = i + 1; j < n; j++) {
-      const d = haversineMeters(points[i].lat, points[i].lon, points[j].lat, points[j].lon);
+      const d = haversineMeters(
+        points[i].lat,
+        points[i].lon,
+        points[j].lat,
+        points[j].lon
+      );
       if (d <= thresholdMeters) {
         adj[i].push(j);
         adj[j].push(i);
@@ -369,7 +395,10 @@ export async function getNearbyReportClusters(
     visited[i] = true;
 
     while (stack.length) {
-      const u = stack.pop()!;
+      const u = stack.pop();
+      if (!u) {
+        continue;
+      }
       componentIdxs.push(u);
       for (const v of adj[u]) {
         if (!visited[v]) {
@@ -383,10 +412,16 @@ export async function getNearbyReportClusters(
       const members = componentIdxs.map((idx) => points[idx]);
       // Compute simple centroid for the group
       const { latSum, lonSum } = members.reduce(
-        (acc, p) => ({ latSum: acc.latSum + p.lat, lonSum: acc.lonSum + p.lon }),
+        (acc, p) => ({
+          latSum: acc.latSum + p.lat,
+          lonSum: acc.lonSum + p.lon,
+        }),
         { latSum: 0, lonSum: 0 }
       );
-      const center = { lat: latSum / members.length, lon: lonSum / members.length };
+      const center = {
+        lat: latSum / members.length,
+        lon: lonSum / members.length,
+      };
       clusters.push({ center, members });
     }
   }
@@ -394,15 +429,16 @@ export async function getNearbyReportClusters(
   return clusters;
 }
 
-
-export async function getUserReportCount(data: { id: string }): Promise<{ content: number}> {
+export async function getUserReportCount(data: {
+  id: string;
+}): Promise<{ content: number }> {
   if (!isLoggedIn()) {
     throw new Error("Unauthorized");
   }
 
   try {
     const count = await prisma.report.count({
-      where: { userId: data.id }
+      where: { userId: data.id },
     });
     return { content: count };
   } catch (error) {

@@ -18,8 +18,7 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchReports = async () => {
       const reports = await getAllReports();
-      setReports(reports as unknown as Report[]);
-      console.log(reports);
+      setReports(reports.content as Report[]);
     };
     fetchReports();
   }, []);
@@ -43,14 +42,16 @@ export default function Dashboard() {
       {value === "map" && (
         <div className="w-full h-full relative flex flex-1">
           <MapBoxMap
-            pins={[
-              ...reports.map((report) => ({
-                id: report.id,
-                lat: report.lat,
-                lon: report.lon,
-                additionalData: report,
-              })),
-            ]}
+            { ...(reports.length > 0 && {
+              pins: [
+                ...reports.map((report) => ({
+                  id: report.id,
+                  lat: report.lat,
+                  lon: report.lon,
+                  additionalData: report,
+                })),
+              ],
+            })}
           />
         </div>
       )}

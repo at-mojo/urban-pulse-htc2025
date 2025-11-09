@@ -2,16 +2,15 @@
 
 import { getAllReports } from "@/report";
 import { useEffect, useState } from "react";
+import type { Report } from "@prisma/client";
 
 export default function Test() {
-  const [reports, setReports] = useState<any[]>([]);
+  const [reports, setReports] = useState<Report[]>([]);
 
   useEffect(() => {
     async function fetchReports() {
-      const response = await getAllReports();
-      const data = await response.json();
-      setReports(data);
-      console.log(data);
+      const data = await getAllReports();
+      setReports(data.content);
     }
 
     fetchReports();
