@@ -94,6 +94,9 @@ export const NewReportModal = ({
               longitude={currentLocation?.lon}
               latitude={currentLocation?.lat}
               zoom={currentLocation ? 17 : 11}
+              onPinChange={(coords) => setSubmittableLocation(coords)}
+              initialPin={submittableLocation || undefined}
+              allowPinDrop={true}
             />
             {/* Hide Mapbox attribution */}
             <style>
