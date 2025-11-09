@@ -76,7 +76,7 @@ export const NewReportModal = ({
   return createPortal(
     <div className="absolute top-0 left-0 w-full h-full bg-background/90 z-50">
       <div className="w-full h-full flex flex-col items-center justify-center">
-        <div className="bg-background rounded-md p-4 flex flex-col gap-4 w-2xl max-w-[90vw] relative border-border border-2 shadow-2xl">
+        <div className="bg-background rounded-md p-4 flex flex-col gap-4 w-2xl max-w-[90vw] relative border-border border-2 shadow-2xl overflow-y-auto max-h-[90vh] overflow-x-hidden">
           <Button
             variant="ghost"
             size="icon"
@@ -91,7 +91,7 @@ export const NewReportModal = ({
           <label htmlFor="location" className="text-sm text-foreground/50">
             Location
           </label>
-          <div className="h-80 w-full relative overflow-hidden rounded-md">
+          <div className="min-h-80 h-80 w-full relative overflow-hidden rounded-md">
             <GlMap
               longitude={currentLocation?.lon}
               latitude={currentLocation?.lat}
