@@ -41,6 +41,7 @@ import {
 import type { Report } from "@prisma/client";
 import { Badge } from "./ui/badge";
 import { getLocationString } from "@/lib/geocode";
+import { ReportModal } from "./reporter-ui";
 
 const columns: ColumnDef<Report>[] = [
   {
@@ -130,11 +131,19 @@ const columns: ColumnDef<Report>[] = [
     header: "Actions",
     accessorKey: "actions",
     cell: ({ row }) => {
+      const [isEditReportModalOpen, setIsEditReportModalOpen] = useState(false);
       return (
         <div className="flex flex-row items-center gap-2">
-          <Button size="icon" variant="outline">
+          <Button size="icon" variant="outline" onClick={() => setIsEditReportModalOpen(true)}>
             <PencilIcon size={16} />
           </Button>
+          {isEditReportModalOpen && (
+            <ReportModal
+              setModalOpen={setIsEditReportModalOpen}
+              mode="edit"
+              report={row.original}
+            />
+          )}
           <Button size="icon" variant="outline">
             <TrashIcon size={16} />
           </Button>
