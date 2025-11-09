@@ -56,7 +56,9 @@ export async function generateDescription(data: {
       ],
     });
 
-    console.log(res.choices[0]?.message?.content);
+    if (res.choices[0]?.message?.content === "safe") {
+      return { content: "Our AI is dumb and is having a little bit of an oopsie. Please try again in a few seconds." };
+    }
     return { content: res.choices[0]?.message?.content || "" };
   } catch (error) {
     console.error("Error generating description:", error);
