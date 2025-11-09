@@ -27,7 +27,7 @@ export default function Dashboard() {
   const user = useUser();
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center relative pt-[72px]">
+    <main className="flex flex-1 flex-col items-center justify-center relative pt-[100px]">
       <TabView onChange={(value) => setValue(value)}>
         <TabButton
           name="Map"
