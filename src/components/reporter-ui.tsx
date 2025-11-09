@@ -30,7 +30,7 @@ export const NewReportModal = ({
 }: {
   setIsNewReportModalOpen: (isOpen: boolean) => void;
 }) => {
-  const [urgency, setUrgency] = useState("LOW");
+  const [urgency, setUrgency] = useState<"LOW" | "MEDIUM" | "HIGH">("MEDIUM");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   return createPortal(
@@ -59,7 +59,7 @@ export const NewReportModal = ({
               { label: "High", value: "HIGH", color: "bg-red-400/50!" },
             ]}
             value={urgency}
-            onChange={(value) => setUrgency(value)}
+            onChange={(value) => setUrgency(value as "LOW" | "MEDIUM" | "HIGH")}
           />
           <label htmlFor="title" className="text-sm text-foreground/50">
             Title <span className="text-red-400">*</span>
