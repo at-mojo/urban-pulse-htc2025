@@ -38,7 +38,7 @@ export async function createReport(data: {
   lon: number;
   path: string;
   urgency: string;
-}) {
+}): Promise<{ message: string }> {
   if (!isLoggedIn()) {
     throw new Error("Unauthorized");
   }
@@ -93,7 +93,7 @@ export async function createReport(data: {
 // Get All Reports
 export async function getAllReports() {
   if (!isLoggedIn() || !stackServerApp.getUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    throw new Error("Unauthorized");
   }
 
   try {
@@ -103,13 +103,10 @@ export async function getAllReports() {
       },
     });
 
-    return JSON.parse(JSON.stringify(reports));
+    return { content: reports}
   } catch (error) {
     console.error("Error fetching reports:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    throw new Error("Internal Server Error");
   }
 }
 
@@ -117,9 +114,9 @@ export async function getAllReports() {
 export async function getPaginatedReports(data: {
   page: number;
   pageSize: number;
-}) {
+}): Promise<{ content: any[] }> {
   if (!isLoggedIn()) {
-    return new Response("Unauthorized", { status: 401 });
+    throw new Error("Unauthorized");
   }
 
   try {
@@ -131,42 +128,80 @@ export async function getPaginatedReports(data: {
       },
     });
 
-    return new Response(JSON.stringify(reports), { status: 200 });
+    return { content: reports };
   } catch (error) {
     console.error("Error fetching reports:", error);
-    return new Response("Internal Server Error", { status: 500 });
+    throw new Error("Internal Server Error");
   }
 }
 
 // Get one report
-export async function getReport(data: { id: string }) {
+export async function getReport(data: { id: string }): Promise<{ content: any }> {
   if (!isLoggedIn()) {
-    return new Response("Unauthorized", { status: 401 });
+    throw new Error("Unauthorized");
   }
 
   if (!data.id) {
-    return new Response("Report ID is required", { status: 400 });
+    throw new Error("Report ID is required");
   }
 
   try {
     const report = await prisma.report.findUnique({
       where: { id: data.id },
     });
+
+    return { content: report };
   } catch (error) {
     console.error("Error fetching report:", error);
-    return new Response("Internal Server Error", { status: 500 });
+    throw new Error("Internal Server Error");
+  }
+}
+
+// Be able to delete own report
+export async function deleteReport(data: { id: string }): Promise<{ content: string }> {
+  if (!isLoggedIn()) {
+    throw new Error("Unauthorized");
+  }
+
+  if (!data.id) {
+    throw new Error("Report ID is required");
+  }
+
+  try {
+    // make sure user owns the report
+    const userId = (await stackServerApp.getUser())!.id;
+    const report = await prisma.report.findUnique({
+      where: { 
+        id: data.id,
+        userId: userId
+      },
+    });
+
+    if (!report) {
+      throw new Error("Report not found or you do not have permission to delete it");
+    }
+
+    await prisma.report.delete({
+      where: { 
+        id: data.id 
+      },
+    });
+    return { content: "Report deleted successfully" };
+  } catch (error) {
+    console.error("Error deleting report:", error);
+    throw new Error("Internal Server Error");
   }
 }
 
 // Get user's reports
 // Can be used to get own reports or another user's reports, only works when logged in
-export async function getUserReports(data: { userId: string }) {
+export async function getUserReports(data: { userId: string }): Promise<{ content: any[] }> {
   if (!isLoggedIn()) {
-    return new Response("Unauthorized", { status: 401 });
+    throw new Error("Unauthorized");
   }
 
   if (!data.userId) {
-    return new Response("User ID is required", { status: 400 });
+    throw new Error("User ID is required");
   }
 
   try {
@@ -177,10 +212,10 @@ export async function getUserReports(data: { userId: string }) {
       },
     });
 
-    return new Response(JSON.stringify(reports), { status: 200 });
+    return { content: reports };
   } catch (error) {
     console.error("Error fetching reports:", error);
-    return new Response("Internal Server Error", { status: 500 });
+    throw new Error("Internal Server Error");
   }
 }
 
@@ -201,7 +236,7 @@ async function getVote(reportId: string, userId: string) {
 
 // Number should be either 1 (upvote) or -1 (downvote) or 0 (remove vote)
 // Will return new vote count.
-export async function updateVote(data: { reportId: string, value: number }) {
+export async function updateVote(data: { reportId: string, value: number }): Promise<{ content: number }> {
   if (!isLoggedIn()) {
     throw new Error("Unauthorized");
   }
@@ -258,7 +293,7 @@ export async function updateVote(data: { reportId: string, value: number }) {
       }
     })
 
-    return new Response(report.rating.toString(), { status: 200 });
+    return { content: report.rating };
   } catch (error) {
     console.error("Error upvoting report:", error);
     throw new Error("Internal Server Error");
@@ -357,4 +392,21 @@ export async function getNearbyReportClusters(
   }
 
   return clusters;
+}
+
+
+export async function getUserReportCount(data: { id: string }): Promise<{ content: number}> {
+  if (!isLoggedIn()) {
+    throw new Error("Unauthorized");
+  }
+
+  try {
+    const count = await prisma.report.count({
+      where: { userId: data.id }
+    });
+    return { content: count };
+  } catch (error) {
+    console.error("Error counting user reports:", error);
+    throw new Error("Internal Server Error");
+  }
 }
