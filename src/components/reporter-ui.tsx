@@ -57,6 +57,7 @@ export const ReportModal = ({
   const [description, setDescription] = useState(
     mode === "new" ? "" : report?.desc || ""
   );
+  const [suggestion, setSuggestion] = useState("Description");
   const [submittableLocation, setSubmittableLocation] = useState(
     mode === "new" ? null : { lat: report?.lat || 0, lon: report?.lon || 0 }
   );
@@ -98,21 +99,24 @@ export const ReportModal = ({
             </style>
           </div>
           <div className="w-full">
-            <label htmlFor="image" className="text-sm text-foreground/50">
-              Image
-            </label>
-            {mode === "new" && <Uploader setImagePath={setImagePath} />}
-            {mode === "edit" && (
+            {report?.path && (
+              <label htmlFor="image" className="text-sm text-foreground/50">
+                Image
+              </label>
+            )}
+            
+            {mode === "new" && <Uploader setImagePath={setImagePath} setSuggestion={setSuggestion} />}
+            {mode === "edit" && report?.path ? (
               <div className="text-sm text-foreground/50">
                 <Image
                   src={`https://${process.env.NEXT_PUBLIC_S3_BUCKET_NAME}.s3.amazonaws.com/${report?.path}`}
                   alt={report?.title || "Report Image"}
                   width={1000}
                   height={1000}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain rounded-md"
                 />
               </div>
-            )}
+            ) : null}
           </div>
           <label htmlFor="urgency" className="text-sm text-foreground/50">
             Urgency
@@ -142,7 +146,7 @@ export const ReportModal = ({
           </label>
           <Textarea
             id="description"
-            placeholder="Description"
+            placeholder={suggestion}
             className="resize-none"
             rows={4}
             value={description}

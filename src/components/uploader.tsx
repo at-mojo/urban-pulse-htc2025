@@ -10,12 +10,15 @@ import {
   initMultipartUpload,
   uploadFileParts,
 } from "@/s3";
+import { generateDescription } from "@/ollama";
 import { createId } from "@paralleldrive/cuid2";
 
 export default function Uploader({
   setImagePath,
+  setSuggestion,
 }: {
   setImagePath: (path: string) => void;
+  setSuggestion: (suggestion: string) => void;
 }) {
   const [progress, setProgress] = useState(0);
   const [
@@ -59,7 +62,12 @@ export default function Uploader({
       });
 
       setProgress(100);
+      setSuggestion("Generating description...");
       setImagePath(result.fileUrl.split(".com/")[1]);
+      generateDescription({ imagePath: result.fileUrl.split(".com/")[1] })
+      .then((res) => {
+        setSuggestion(res.content);
+      });
     } catch (error) {
       console.error("Error uploading file:", error);
       setProgress(0);
