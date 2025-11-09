@@ -77,7 +77,7 @@ export const GlMap = <T extends object>({
     maxzoom: 23,
     paint: {
       // Increase the heatmap weight based on frequency and property magnitude
-      "heatmap-weight": ["interpolate", ["linear"], ["zoom"], 7, 1, 15, 3],
+      "heatmap-weight": ["interpolate", ["linear"], ["zoom"], 7, 1, 15, 0.2],
       // Increase the heatmap color weight weight by zoom level
       "heatmap-intensity": [
         "interpolate",
