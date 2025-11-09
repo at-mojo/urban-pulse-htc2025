@@ -20,22 +20,12 @@ import {
 
 import { usePagination } from "@/hooks/use-pagination";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Pagination,
   PaginationContent,
-  PaginationEllipsis,
   PaginationItem,
 } from "@/components/ui/pagination";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Table,
   TableBody,
@@ -44,91 +34,37 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { getAllReports } from "@/report";
+import type { Report } from "@prisma/client";
 
-type Item = {
-  id: string;
-  name: string;
-  email: string;
-  location: string;
-  flag: string;
-  status: "Active" | "Inactive" | "Pending";
-  balance: number;
-};
-
-const columns: ColumnDef<Item>[] = [
+const columns: ColumnDef<Report>[] = [
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all rows"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    size: 28,
-    enableSorting: false,
+    header: "Title",
+    accessorKey: "title",
   },
   {
-    header: "Name",
-    accessorKey: "name",
-    cell: ({ row }) => (
-      <div className="font-medium">{row.getValue("name")}</div>
-    ),
-    size: 180,
+    header: "Description",
+    accessorKey: "desc",
   },
   {
-    header: "Email",
-    accessorKey: "email",
-    size: 200,
+    header: "Created At",
+    accessorKey: "createdAt",
   },
   {
-    header: "Location",
-    accessorKey: "location",
-    cell: ({ row }) => (
-      <div>
-        <span className="text-lg leading-none">{row.original.flag}</span>{" "}
-        {row.getValue("location")}
-      </div>
-    ),
-    size: 180,
+    header: "Urgency",
+    accessorKey: "urgency",
   },
   {
-    header: "Status",
-    accessorKey: "status",
-    cell: ({ row }) => (
-      <Badge
-        className={cn(
-          row.getValue("status") === "Inactive" &&
-            "bg-muted-foreground/60 text-primary-foreground"
-        )}
-      >
-        {row.getValue("status")}
-      </Badge>
-    ),
-    size: 120,
+    header: "Rating",
+    accessorKey: "rating",
   },
   {
-    header: "Balance",
-    accessorKey: "balance",
-    cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("balance"));
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "USD",
-      }).format(amount);
-      return formatted;
-    },
-    size: 120,
+    header: "Votes",
+    accessorKey: "votes",
+  },
+  {
+    header: "Actions",
+    accessorKey: "actions",
   },
 ];
 
@@ -147,16 +83,13 @@ export default function EventsTable() {
     },
   ]);
 
-  const [data, setData] = useState<Item[]>([]);
+  const [data, setData] = useState<Report[]>([]);
   useEffect(() => {
-    async function fetchPosts() {
-      const res = await fetch(
-        "https://raw.githubusercontent.com/origin-space/origin-images/refs/heads/main/users-01_fertyx.json"
-      );
-      const data = await res.json();
-      setData(data);
-    }
-    fetchPosts();
+    const fetchReports = async () => {
+      const reports = await getAllReports();
+      setData(reports as unknown as Report[]);
+    };
+    fetchReports();
   }, []);
 
   const table = useReactTable({
