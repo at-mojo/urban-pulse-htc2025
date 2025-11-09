@@ -34,7 +34,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { getAllReports } from "@/report";
 import type { Report } from "@prisma/client";
 import { Badge } from "./ui/badge";
 
