@@ -5,18 +5,28 @@ import { createPortal } from "react-dom";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
 import { RadioGroup } from "./ui/radio-group";
+import { cn } from "@/lib/utils";
 
 export const ReporterUI = () => {
   const [isNewReportModalOpen, setIsNewReportModalOpen] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
   return (
     <>
       <Button
         variant="outline"
-        className="absolute bottom-8 right-2 rounded-md p-4 z-50 text-white bg-rose-400/50 hover:bg-rose-400/70"
+        className={cn(
+          "absolute bottom-8 right-2 rounded-full p-4 z-50 text-white bg-rose-400/50 hover:bg-rose-400/70 h-15 group flex flex-row items-center justify-start transition-all duration-300 overflow-hidden",
+          !isHovering && "w-15",
+          isHovering && "w-56"
+        )}
         onClick={() => setIsNewReportModalOpen(true)}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
       >
-        <PlusIcon color="white" style={{ width: "18px", height: "18px" }} />
-        <span className="text-lg">Create Report</span>
+        <PlusIcon color="white" style={{ width: "32px", height: "32px" }} />
+        <span className="text-lg font-departure-mono group-hover:opacity-100 opacity-0 transition-opacity duration-300">
+          Create Report
+        </span>
       </Button>
       {isNewReportModalOpen && (
         <NewReportModal setIsNewReportModalOpen={setIsNewReportModalOpen} />
