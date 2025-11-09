@@ -17,19 +17,19 @@ export const NavBar = () => {
 
   const links = [
     {
+      show: isLoggedIn,
+      href: "/dashboard",
+      label: "Dashboard",
+    },
+    {
       show: !isLoggedIn,
       href: "/handler/sign-up",
-      label: <UserAvatar user={user} />,
+      label: "Sign In",
     },
     {
       show: isLoggedIn,
       href: "/handler/sign-out",
-      label: <UserAvatar user={user} />,
-    },
-    {
-      show: isLoggedIn,
-      href: "/dashboard",
-      label: "Dashboard",
+      label: "Sign Out",
     },
   ];
   return (
@@ -64,6 +64,7 @@ export const NavBar = () => {
               </Link>
             ))
         )}
+        <UserAvatar user={user} />
       </div>
     </nav>
   );
