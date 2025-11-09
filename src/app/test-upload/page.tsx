@@ -87,7 +87,7 @@ export default function TestUpload() {
           setProgress((prev) => Math.min(prev + (100 / initData.parts.length), 99));
           return result;
         } catch (err) {
-          throw new Error(`Part ${part.partNumber} failed: ${err.message}`);
+          throw new Error(`Part ${part.partNumber} failed: ${err instanceof Error ? err.message : "Unknown error"}`);
         }
       });
 
