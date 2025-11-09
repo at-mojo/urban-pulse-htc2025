@@ -146,19 +146,6 @@ export default function Uploader({
           <span>{errors[0]}</span>
         </div>
       )}
-
-      <p
-        aria-live="polite"
-        className="mt-2 text-center text-xs text-muted-foreground"
-      >
-        Single image uploader w/ max size ∙{" "}
-        <Link
-          href="https://github.com/cosscom/coss/blob/main/apps/origin/docs/use-file-upload.md"
-          className="underline hover:text-foreground"
-        >
-          API
-        </Link>
-      </p>
     </div>
   );
 }
